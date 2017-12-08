@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">MP3-Soitin</string>
+    <string name="action_settings">Settings</string>
+    <string name="back"><![CDATA[<]]></string>
+    <string name="rewind"><![CDATA[<<]]></string>
+    <string name="forward"><![CDATA[>>]]></string>
+    <string name="pause">||</string>
+    <string name="action_scan">Scan</string>
+    <string name="addplaylist">Add new playlist</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
