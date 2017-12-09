@@ -4,8 +4,14 @@ import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
+import android.util.Log;
 
+import com.example.julius.mp3_soitin.AppDatabase;
 import com.example.julius.mp3_soitin.TrackListFragment;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 
 /**
  * Created by Julius on 4.12.2017.
@@ -44,6 +50,25 @@ public class PlayList implements TrackContainer{
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public static Function<Void, List<Object>> getAllPlayListsFromDB(AppDatabase db){
+        return (Void v) -> {
+            List<Object> playlists = new ArrayList<Object>();
+            Log.d("UUUU", "Fetching from db");
+            playlists.addAll(db.playListDao().getAll());
+            for(Object t : playlists){
+                PlayList a = (PlayList)t;
+                Log.d("UUUU","PlayList " + a.getName());
+            }
+            return playlists;
+        };
+    }
+
+    public static Function<Void, Void> savePlayListToDB(AppDatabase db, PlayList playList){
+        return (Void v) -> {
+            return null;
+        };
     }
 
 }

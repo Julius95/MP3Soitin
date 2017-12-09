@@ -152,10 +152,11 @@ public class TrackListFragment extends ListFragment implements AsyncTaskListener
     @Override
     public void onTaskCompleted(Object o) {
         List<Track> tracks = (List<Track>) o;
-        ArrayAdapter<Track> arrayAdapter = new ArrayAdapter<Track>(
+        /*ArrayAdapter<Track> arrayAdapter = new ArrayAdapter<Track>(
                 getContext(),
-                android.R.layout.simple_list_item_1,
-                tracks);
+                android.R.layout.simple_list_item_1,//android.R.layout.simple_list_item_1
+                tracks);*/
+        CustomListAdapter arrayAdapter = new CustomListAdapter(tracks, getContext());
         setListAdapter(arrayAdapter);
     }
 

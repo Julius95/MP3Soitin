@@ -4,20 +4,31 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+
+import com.example.julius.mp3_soitin.entities.PlayList;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Julius on 8.12.2017.
  */
 
-public class PlayListFragment extends ListFragment implements AsyncTaskListener{
+public class PlayListFragment extends ListFragment implements AsyncTaskListener, QueryDialog.NoticeDialogListener {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+
+    private List<PlayList> playlists = new ArrayList<PlayList>();
+    private ArrayAdapter<PlayList> arrayAdapter;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -54,20 +65,22 @@ public class PlayListFragment extends ListFragment implements AsyncTaskListener{
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        new MainActivity.LoadAsyncTask(PlayList.getAllPlayListsFromDB(AppDatabase.getInstance(getContext())), this).execute();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_playlist, container, false);
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onPlaylistFragmentInteractionListener(uri);
-        }
+        View view = inflater.inflate(R.layout.fragment_playlist,
+                container, false);
+        Button button = (Button) view.findViewById(R.id.addPlayList);
+        button.setOnClickListener(view1 -> {
+            QueryDialog dialog = new QueryDialog();
+            dialog.setListener(this);
+            dialog.show(getActivity().getSupportFragmentManager(), "NoticeDialogFragment");
+        });
+        return view;
     }
 
     @Override
@@ -87,6 +100,13 @@ public class PlayListFragment extends ListFragment implements AsyncTaskListener{
         mListener = null;
     }
 
+    @Override
+    public void onDialogPositiveClick(String newPlayListname) {
+        Log.d("UUUU", "GOT MSG " + newPlayListname);
+        PlayList uusi = new PlayList(newPlayListname);
+
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -103,7 +123,13 @@ public class PlayListFragment extends ListFragment implements AsyncTaskListener{
     }
     @Override
     public void onTaskCompleted(Object o) {
-
+        playlists.clear();
+        playlists.addAll((List<PlayList>) o);
+        arrayAdapter = new ArrayAdapter<PlayList>(
+                getContext(),
+                android.R.layout.simple_list_item_1,
+                playlists);
+        setListAdapter(arrayAdapter);
     }
 
 }
