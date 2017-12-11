@@ -1,34 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content" android:orientation="vertical"
+    android:layout_width="fill_parent">
 
-    <TextView
-        android:id="@+id/list_item_string"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_alignParentLeft="true"
-        android:paddingLeft="8dp"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+    <TableRow android:layout_width="fill_parent"
+        android:id="@+id/TableRow01"
+        android:layout_height="wrap_content">
 
-    <Button
-        android:id="@+id/delete_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"
-        android:layout_marginEnd="5dp"
-        android:text="Delete" />
+        <TextView android:textColor="#FFFFFF"
+            android:id="@+id/id"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="id" android:textStyle="bold"
+            android:gravity="left"
+            android:layout_weight="1"
+            android:typeface="monospace"
+            android:height="40sp" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@android:color/holo_green_light"
+            android:id="@+id/add_btn"
+            android:text="@string/addtoplaylist"
+            android:textStyle="bold" />
+    </TableRow>
 
-    <Button
-        android:id="@+id/add_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toStartOf="@id/delete_btn"
-        android:layout_centerVertical="true"
-        android:layout_marginEnd="10dp"
-        android:text="Add" />
+    <TableRow android:layout_height="wrap_content"
+        android:layout_width="fill_parent">
 
-</RelativeLayout>
+        <TextView android:textColor="#FFFFFF"
+            android:id="@+id/categoryId"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="categoryId"
+            android:layout_weight="1"
+            android:height="20sp" />
+
+        <TextView android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:layout_weight="1"
+            android:textColor="#FFFFFF"
+            android:gravity="right"
+            android:id="@+id/description"
+            android:text="description"
+            android:height="20sp" />
+    </TableRow>
+
+</TableLayout>

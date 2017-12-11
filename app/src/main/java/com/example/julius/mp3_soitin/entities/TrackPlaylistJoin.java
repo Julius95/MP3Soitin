@@ -2,6 +2,11 @@ package com.example.julius.mp3_soitin.entities;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
+import android.util.Log;
+
+import com.example.julius.mp3_soitin.AppDatabase;
+
+import java.util.function.Function;
 
 /**
  * Created by Julius on 4.12.2017.
@@ -24,4 +29,12 @@ public class TrackPlaylistJoin{
         this.trackId = trackId;
         this.playlistId = playlistId;
     }
+
+    public static Function<Void, Void> saveTrackPlayListJoinToDB(AppDatabase db, TrackPlaylistJoin tpj){
+        return (Void v) -> {
+            db.track_playList_JOIN_Dao().insert(tpj);
+            return null;
+        };
+    }
+
 }

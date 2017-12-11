@@ -325,8 +325,9 @@ public class MainActivity extends AppCompatActivity implements TrackListFragment
     }
 
     @Override
-    public void onPlaylistFragmentInteractionListener(Uri uri) {
-
+    public void onPlaylistFragmentInteractionListener(PlayList playList) {
+        trackListFragment.setCurrentTrackContainer(playList);
+        changeFragment(trackListFragment);
     }
 
     //https://stackoverflow.com/questions/21590189/dry-a-case-with-asynctasks
@@ -420,6 +421,41 @@ public class MainActivity extends AppCompatActivity implements TrackListFragment
         @Override
         protected void onPostExecute(List<Object> result) {
             listener.onTaskCompleted(result);
+        }
+    }
+
+    public static class SaveAsyncTask extends AsyncTask<Void, Void, Object>
+    {
+        private Function<Void, Object> function;
+        private AsyncTaskListener listener;
+
+        public SaveAsyncTask(Function<Void, Object> f, AsyncTaskListener listener){
+            function = f;
+            this.listener = listener;
+        }
+
+        @Override
+        protected Object doInBackground(Void... voids) {
+            return function.apply(null);
+        }
+
+        @Override
+        protected void onPostExecute(Object result) {
+            listener.onTaskCompleted(result);
+        }
+    }
+
+    public static class AsyncTaskNoReturnValue extends AsyncTask<Void, Void, Void>
+    {
+        private Function<Void, Void> function;
+
+        public AsyncTaskNoReturnValue(Function<Void, Void> f){
+            function = f;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            return function.apply(null);
         }
     }
 

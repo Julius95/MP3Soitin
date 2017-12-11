@@ -14,6 +14,9 @@ public interface TrackPlaylistJoinDao {
     @Insert
     void insert(TrackPlaylistJoin trackPlaylistJoin);
 
+    @Query("SELECT * FROM track_playlist_join")
+    List<TrackPlaylistJoin> getAll();
+
     @Query("SELECT * FROM track INNER JOIN track_playlist_join ON track.id=track_playlist_join.trackId WHERE track_playlist_join.playlistId=:playlistId")
     List<Track> getTracksFromPlayList(final long playlistId);
 

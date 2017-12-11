@@ -1,15 +1,14 @@
-package com.example.julius.mp3_soitin;
+package com.example.julius.mp3_soitin.Dialogs;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.EditText;
+
+import com.example.julius.mp3_soitin.R;
 
 /**
  * Created by Julius on 9.12.2017.
@@ -50,16 +49,6 @@ public class QueryDialog extends DialogFragment {
                 });
         return builder.create();
     }
-
-    /*public static QueryDialog newInstance(NoticeDialogListener lis) {
-        QueryDialog queryDialog = new QueryDialog();
-        if(lis!=null){
-            Bundle args = new Bundle();
-            args.
-            queryDialog.setArguments(args);
-        }
-        return queryDialog;
-    }*/
 
     public void setListener(NoticeDialogListener lis){
         this.listener = lis;

@@ -11,7 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
+import com.example.julius.mp3_soitin.Dialogs.ListDialog;
 import com.example.julius.mp3_soitin.entities.Album;
+import com.example.julius.mp3_soitin.entities.PlayList;
 import com.example.julius.mp3_soitin.entities.Track;
 import com.example.julius.mp3_soitin.entities.TrackContainer;
 
@@ -29,7 +31,7 @@ import java.util.function.Function;
  * Use the {@link TrackListFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class TrackListFragment extends ListFragment implements AsyncTaskListener{
+public class TrackListFragment extends ListFragment implements AsyncTaskListener, ListDialog.NoticeDialogListener{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -42,8 +44,6 @@ public class TrackListFragment extends ListFragment implements AsyncTaskListener
         Album
     }
 
-    private Stack<Album> history = new Stack();
-
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
@@ -53,24 +53,6 @@ public class TrackListFragment extends ListFragment implements AsyncTaskListener
 
     public TrackListFragment() {
         // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment TrackListFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static TrackListFragment newInstance(String param1, String param2) {
-        TrackListFragment fragment = new TrackListFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @Override//https://stackoverflow.com/questions/9245408/best-practice-for-instantiating-a-new-android-fragment
@@ -102,6 +84,7 @@ public class TrackListFragment extends ListFragment implements AsyncTaskListener
                 setCurrentAlbum(history.pop());
             }
         }*/
+
         if(currentTrackContainer == null){
             new MainActivity.LoadAsyncTask(Track.getAllTracks(AppDatabase.getInstance(getContext())), this).execute();
         }
@@ -156,7 +139,8 @@ public class TrackListFragment extends ListFragment implements AsyncTaskListener
                 getContext(),
                 android.R.layout.simple_list_item_1,//android.R.layout.simple_list_item_1
                 tracks);*/
-        CustomListAdapter arrayAdapter = new CustomListAdapter(tracks, getContext());
+        CustomListAdapter arrayAdapter = new CustomListAdapter(getContext(),android.R.layout.simple_list_item_1, tracks,
+                this);
         setListAdapter(arrayAdapter);
     }
 
@@ -180,7 +164,6 @@ public class TrackListFragment extends ListFragment implements AsyncTaskListener
             Log.d("UUUU", "Haetaan tietokannasta");
             new MainActivity.LoadAsyncTask(Track.getTracksWithContainerId(currentTrackContainer, AppDatabase.getInstance(getContext())), this).execute();
         }else{
-            history.push(null);
             new MainActivity.LoadAsyncTask(Track.getAllTracks(AppDatabase.getInstance(getContext())), this).execute();
         }
     }
@@ -193,5 +176,10 @@ public class TrackListFragment extends ListFragment implements AsyncTaskListener
             myFragment.setArguments(args);
         }
         return myFragment;
+    }
+
+    @Override
+    public void onDialogPositiveClick(PlayList list) {
+
     }
 }

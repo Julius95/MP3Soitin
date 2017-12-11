@@ -52,6 +52,11 @@ public class PlayList implements TrackContainer{
         this.name = name;
     }
 
+    @Override
+    public String toString(){
+        return name;
+    }
+
     public static Function<Void, List<Object>> getAllPlayListsFromDB(AppDatabase db){
         return (Void v) -> {
             List<Object> playlists = new ArrayList<Object>();
@@ -65,9 +70,11 @@ public class PlayList implements TrackContainer{
         };
     }
 
-    public static Function<Void, Void> savePlayListToDB(AppDatabase db, PlayList playList){
+    public static Function<Void, Object> savePlayListToDB(AppDatabase db, PlayList playList){
         return (Void v) -> {
-            return null;
+            Log.d("UUUU", "saving to database db");
+            playList.setId(db.playListDao().insert(playList));
+            return playList;
         };
     }
 

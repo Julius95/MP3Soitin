@@ -10,7 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 
+import com.example.julius.mp3_soitin.Dialogs.QueryDialog;
 import com.example.julius.mp3_soitin.entities.PlayList;
 
 import java.util.ArrayList;
@@ -74,6 +76,9 @@ public class PlayListFragment extends ListFragment implements AsyncTaskListener,
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_playlist,
                 container, false);
+
+        ListView playlist = (ListView) view.findViewById(R.id.playlistName);
+
         Button button = (Button) view.findViewById(R.id.addPlayList);
         button.setOnClickListener(view1 -> {
             QueryDialog dialog = new QueryDialog();
@@ -101,10 +106,19 @@ public class PlayListFragment extends ListFragment implements AsyncTaskListener,
     }
 
     @Override
+    public void onListItemClick(android.widget.ListView l, View v, int position, long id){
+        super.onListItemClick(l, v, position, id);
+        Log.d("UUUU", "CallBack");
+        if (mListener != null) {
+            mListener.onPlaylistFragmentInteractionListener((PlayList) l.getAdapter().getItem(position));
+        }
+    }
+
+    @Override
     public void onDialogPositiveClick(String newPlayListname) {
         Log.d("UUUU", "GOT MSG " + newPlayListname);
         PlayList uusi = new PlayList(newPlayListname);
-
+        new MainActivity.SaveAsyncTask(PlayList.savePlayListToDB(AppDatabase.getInstance(getContext()), uusi), this).execute();
     }
 
     /**
@@ -119,10 +133,15 @@ public class PlayListFragment extends ListFragment implements AsyncTaskListener,
      */
     public interface OnPlaylistFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onPlaylistFragmentInteractionListener(Uri uri);
+        void onPlaylistFragmentInteractionListener(PlayList playList);
     }
     @Override
     public void onTaskCompleted(Object o) {
+        if(o instanceof PlayList){
+            playlists.add((PlayList) o);
+            arrayAdapter.notifyDataSetChanged();
+            return;
+        }
         playlists.clear();
         playlists.addAll((List<PlayList>) o);
         arrayAdapter = new ArrayAdapter<PlayList>(

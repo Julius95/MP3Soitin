@@ -141,13 +141,19 @@ public class Track implements Parcelable {
 
     public static Function< Void, List<Object>> getTracksWithContainerId(TrackContainer tc, AppDatabase db){
         return (Void v) -> {
+            Log.d("UUUU", "GETTING CONTAINER");
             List<Object> tracks = new ArrayList<Object>();
             AlbumWithTracks awt;
             if(tc.getType() == TrackListFragment.IdType.Album) {
                 awt = db.albumDao().loadAlbumWithTracks(tc.getId());
                 tracks.addAll(awt.tracks);
-            }else
+            }else {
+                List<TrackPlaylistJoin> eb = db.track_playList_JOIN_Dao().getAll();
+                for(TrackPlaylistJoin tj : eb){
+                    Log.d("UUUU", "SAIN " + tj.playlistId + " " + tj.trackId);
+                }
                 tracks.addAll(db.track_playList_JOIN_Dao().getTracksFromPlayList(tc.getId()));
+            }
             for(Object t : tracks){
                 Log.d("UUUU","Jee from single album");
             }
