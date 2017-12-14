@@ -6,6 +6,8 @@ import android.util.Log;
 
 import com.example.julius.mp3_soitin.AppDatabase;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -34,6 +36,14 @@ public class TrackPlaylistJoin{
         return (Void v) -> {
             db.track_playList_JOIN_Dao().insert(tpj);
             return null;
+        };
+    }
+
+    public static Function<Void, List<Object>> getAcceptablePlaylistsForTrack(AppDatabase db, Track track){
+        return (Void v) ->{
+            List<Object> res = new ArrayList<Object>();
+            res.addAll(db.track_playList_JOIN_Dao().getPlayListsThatCanAcceptThisTrack(track.getId()));
+            return res;
         };
     }
 

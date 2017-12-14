@@ -97,37 +97,7 @@ public class MainActivity extends AppCompatActivity implements TrackListFragment
                 backButtonPressed = false;
             }
         });//https://why-android.com/2016/03/29/learn-how-to-use-the-onbackstackchangedlistener/
-        //history.setSize(10);
-        // Here, thisActivity is the current activity
-       // db = Room.databaseBuilder(getApplicationContext(),
-          //  AppDatabase.class, "database-name").fallbackToDestructiveMigration().allowMainThreadQueries().build();
 
-        /*long id = db.artistDao().insert(new Artist("JEE"));
-        long album_id = db.albumDao().insert(new Album("UUSI", "11.11.2011", 1, id));
-        long got = db.trackDao().insert(new Track("TRACKWITH" , "3:45", album_id));
-        //db.trackDao().insertAll(new Track("TEST" , "3:45", 1));
-        long genreID = db.genreDao().insert(new Genre("UUSIGENRE"));
-        db.track_genre_JOIN_Dao().insert(new TracksGenreJoin(got,genreID));
-
-        for(ArtistWithAlbums awa : db.artistDao().loadArtistsWithAlbums(id)){
-            Log.d("UUUU", "Artist " + awa.artist.getName() + " WITH ID : " + id);
-            for(Album a : awa.getAlbums){
-                Log.d("UUUU", "Album name : " + a.getName());
-                //for(Track t : a.)
-            }
-        }*/
-
-        /*for(AlbumWithTracks t : db.albumDao().loadAlbumsWithTracks()){
-            Log.d("UUUU", "Got from db " + t.album.getName());
-            for(Track tr : t.tracks){
-                Log.d("UUUU", "Track name " + tr.getName() + " AND GENRES : ");
-                for(Genre g :db.track_genre_JOIN_Dao().getGenresForTracks(tr.getId()) ){
-                    Log.d("UUUU", "GENRE " + g.getName());
-                }
-            }
-        }*/
-        //SongsManager ma = new SongsManager();
-        //Track test = ma.getPlayList().get(0);
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {

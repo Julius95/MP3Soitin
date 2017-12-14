@@ -132,9 +132,6 @@ public class Track implements Parcelable {
         return (Void v) -> {
             List<Object> tracks = new ArrayList<Object>();
             tracks.addAll(database.trackDao().getAll());
-            for(Object t : tracks){
-                Log.d("UUUU","Jee ");
-            }
             return tracks;
         };
     }

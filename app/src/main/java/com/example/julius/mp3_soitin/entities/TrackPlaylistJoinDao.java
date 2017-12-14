@@ -22,4 +22,7 @@ public interface TrackPlaylistJoinDao {
 
     @Query("SELECT * FROM playlist INNER JOIN track_playlist_join ON playlist.id=track_playlist_join.playlistId WHERE track_playlist_join.trackId=:trackId")
     List<PlayList> getPlayListsThatIncludeThisTrack(final long trackId);
+    //SELECT * FROM Table1 WHERE id NOT IN (SELECT id FROM Table2)
+    @Query("SELECT * FROM playlist WHERE playlist.id NOT IN (SELECT track_playlist_join.playlistId FROM track_playlist_join WHERE track_playlist_join.trackId=:trackId)")
+    List<PlayList> getPlayListsThatCanAcceptThisTrack(final long trackId);
 }

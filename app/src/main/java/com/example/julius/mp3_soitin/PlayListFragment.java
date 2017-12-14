@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.example.julius.mp3_soitin.Dialogs.QueryDialog;
 import com.example.julius.mp3_soitin.entities.PlayList;

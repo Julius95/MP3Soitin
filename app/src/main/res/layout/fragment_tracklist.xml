@@ -7,20 +7,55 @@
     android:layout_height="match_parent"
     tools:context="com.example.julius.mp3_soitin.TrackListFragment">
 
-    <ListView
-        android:id="@android:id/list"
-        style="@style/Widget.AppCompat.ListView.Menu"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:id="@+id/textView"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@android:color/holo_blue_bright"
-        android:visibility="visible"/><!--
-    android:orientation="vertical"
+        android:layout_marginBottom="6dp"
+        android:layout_marginTop="6dp"
+        android:orientation="vertical"
+        android:padding="10dp"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <TextView
-        android:id="@android:id/empty"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fontFamily="casual"
-        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-        android:textSize="14sp"/>-->
+        <TextView
+            android:id="@+id/raidatText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/raidat"
+            android:textAllCaps="true"
+            android:textSize="18sp"
+            android:textStyle="bold|italic" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView">
+
+        <ListView
+            android:id="@android:id/list"
+            style="@style/Widget.AppCompat.ListView.Menu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/holo_blue_bright"
+            android:visibility="visible" /><!--
+    android:orientation="vertical" -->
+
+        <TextView
+            android:id="@+id/playlistview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="casual"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+            android:textSize="14sp" />
+    </LinearLayout>
 </android.support.constraint.ConstraintLayout>

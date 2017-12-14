@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 
 import com.example.julius.mp3_soitin.Dialogs.ListDialog;
 import com.example.julius.mp3_soitin.entities.Album;
@@ -44,12 +45,9 @@ public class TrackListFragment extends ListFragment implements AsyncTaskListener
         Album
     }
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-    private SongsManager songsManager = new SongsManager();
-
     private OnFragmentInteractionListener mListener;
+
+    private TextView maintextview;
 
     public TrackListFragment() {
         // Required empty public constructor
@@ -58,11 +56,6 @@ public class TrackListFragment extends ListFragment implements AsyncTaskListener
     @Override//https://stackoverflow.com/questions/9245408/best-practice-for-instantiating-a-new-android-fragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-        Log.d("UUUU", "Fragment OnCreate");
         //Fetch tracks from database
         if(currentTrackContainer == null){
             new MainActivity.LoadAsyncTask(Track.getAllTracks(AppDatabase.getInstance(getContext())), this).execute();
@@ -85,10 +78,21 @@ public class TrackListFragment extends ListFragment implements AsyncTaskListener
             }
         }*/
 
+        View v = inflater.inflate(R.layout.fragment_tracklist, container, false);
+
+        maintextview = v.findViewById(R.id.raidatText);
+
         if(currentTrackContainer == null){
             new MainActivity.LoadAsyncTask(Track.getAllTracks(AppDatabase.getInstance(getContext())), this).execute();
+        }else{
+            String type;
+            if(currentTrackContainer.getType() == IdType.Album)
+                type = "Albumi : ";
+            else
+                type = "PlayList : ";
+            maintextview.setText(type + currentTrackContainer.getName());
         }
-        return inflater.inflate(R.layout.fragment_tracklist, container, false);
+        return v;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -141,6 +145,10 @@ public class TrackListFragment extends ListFragment implements AsyncTaskListener
                 tracks);*/
         CustomListAdapter arrayAdapter = new CustomListAdapter(getContext(),android.R.layout.simple_list_item_1, tracks,
                 this);
+        if(currentTrackContainer!=null && currentTrackContainer.getType() == IdType.Playlist) {
+            Log.d("UUUU", "SETTING EXC " + currentTrackContainer.getId());
+            arrayAdapter.setExcluded(new long[]{currentTrackContainer.getId()});
+        }
         setListAdapter(arrayAdapter);
     }
 

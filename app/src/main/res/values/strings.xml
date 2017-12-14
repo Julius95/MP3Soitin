@@ -9,6 +9,7 @@
     <string name="addplaylist">Add new playlist</string>
     <string name="new_playlist">Give new playlist name</string>
     <string name="addtoplaylist">Add to playlist</string>
+    <string name="raidat">Raidat</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

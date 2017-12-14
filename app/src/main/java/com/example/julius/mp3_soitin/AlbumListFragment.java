@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 
 import com.example.julius.mp3_soitin.entities.Album;
 import com.example.julius.mp3_soitin.entities.Track;
@@ -59,8 +60,10 @@ public class AlbumListFragment extends ListFragment implements AsyncTaskListener
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-
-        return inflater.inflate(R.layout.fragment_tracklist, container, false);
+        View v = inflater.inflate(R.layout.fragment_tracklist, container, false);
+        TextView textview = v.findViewById(R.id.raidatText);
+        textview.setText("ALBUMIT");
+        return v;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

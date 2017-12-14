@@ -1,6 +1,7 @@
 package com.example.julius.mp3_soitin;
 
 import android.content.Context;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,6 +26,7 @@ import java.util.List;
 public class CustomListAdapter extends ArrayAdapter<Track> {
 
     private ListFragment callback;
+    private long[] excluded;
 
     public CustomListAdapter(Context context, int textViewResourceId, ListFragment listener ) {
         super(context, textViewResourceId);
@@ -61,7 +63,7 @@ public class CustomListAdapter extends ArrayAdapter<Track> {
                 public void onClick(View v) {
                     //do something
                     Log.d("UUUU", "BUTTON LIST");
-                    ListDialog dialog = ListDialog.newInstance(track);
+                    ListDialog dialog = ListDialog.newInstance(track, excluded);
                     if(callback!=null && callback instanceof ListDialog.NoticeDialogListener)
                         dialog.setListener((ListDialog.NoticeDialogListener) callback);
                     //dialog.setListener(this);
@@ -74,5 +76,10 @@ public class CustomListAdapter extends ArrayAdapter<Track> {
             v.setOnClickListener(view -> callback.onListItemClick(callback.getListView(), callback.getView(), position, getItem(position).getId()));
 
         return v;
+    }
+
+    public void setExcluded(long[] excluded){
+        this.excluded = excluded;
+        Log.d("UUUU", "in exc " + excluded[0]);
     }
 }
