@@ -6,10 +6,15 @@ import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.julius.mp3_soitin.Dialogs.ListDialog;
@@ -17,6 +22,7 @@ import com.example.julius.mp3_soitin.entities.Album;
 import com.example.julius.mp3_soitin.entities.PlayList;
 import com.example.julius.mp3_soitin.entities.Track;
 import com.example.julius.mp3_soitin.entities.TrackContainer;
+import com.example.julius.mp3_soitin.entities.TrackPlaylistJoin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -95,6 +101,12 @@ public class TrackListFragment extends ListFragment implements AsyncTaskListener
         return v;
     }
 
+
+    public void onActivityCreated(Bundle savedState) {
+        super.onActivityCreated(savedState);
+        registerForContextMenu(this.getListView());
+    }
+
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         Log.d("UUUU", "CallBack");
@@ -137,6 +149,59 @@ public class TrackListFragment extends ListFragment implements AsyncTaskListener
     }
 
     @Override
+    public void onCreateContextMenu(ContextMenu menu, View v,
+                                    ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        AdapterView.AdapterContextMenuInfo adapter;
+        try{
+            adapter = (AdapterView.AdapterContextMenuInfo) menuInfo;
+        }catch (ClassCastException e) {
+            Log.e("UUUU", "bad menuInfo in TrackList", e);
+            return;
+        }
+        menu.setHeaderTitle(getListAdapter().getItem(adapter.position).toString());
+        menu.add(Menu.NONE, 0, Menu.NONE, R.string.info);
+        menu.add(Menu.NONE, 1, Menu.NONE, R.string.addtoplaylist);
+        menu.add(Menu.NONE, 2, Menu.NONE, R.string.removefromplaylist);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info;
+        int id;
+        Track track;
+        try {
+            info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+            id = (int)getListAdapter().getItemId(info.position);
+            track = (Track)getListAdapter().getItem(id);
+        } catch (ClassCastException e) {
+            Log.e("", "bad menuInfo", e);
+            return false;
+        }
+        Log.d("UUUU", "id = " + id + " " + item.getTitle() + " " + item.getItemId());
+        ListDialog dialog;
+        switch(item.getItemId()){
+            /*
+            Ollaan lisäämässä kappaletta soittolistaan
+             */
+            case 1:
+                dialog = ListDialog.newInstance(track, true);
+                dialog.setListener((ListDialog.NoticeDialogListener) this);
+                dialog.show(this.getActivity().getSupportFragmentManager(), "NoticeDialogFragment");
+                break;
+            /*
+            Ollaan poistamassa kappaletta soittolistasta
+             */
+            case 2:
+                dialog = ListDialog.newInstance(track, false);
+                dialog.setListener((ListDialog.NoticeDialogListener) this);
+                dialog.show(this.getActivity().getSupportFragmentManager(), "NoticeDialogFragment");
+                break;
+        }
+        return true;
+    }
+
+    @Override
     public void onTaskCompleted(Object o) {
         List<Track> tracks = (List<Track>) o;
         /*ArrayAdapter<Track> arrayAdapter = new ArrayAdapter<Track>(
@@ -145,10 +210,10 @@ public class TrackListFragment extends ListFragment implements AsyncTaskListener
                 tracks);*/
         CustomListAdapter arrayAdapter = new CustomListAdapter(getContext(),android.R.layout.simple_list_item_1, tracks,
                 this);
-        if(currentTrackContainer!=null && currentTrackContainer.getType() == IdType.Playlist) {
+        /*if(currentTrackContainer!=null && currentTrackContainer.getType() == IdType.Playlist) {
             Log.d("UUUU", "SETTING EXC " + currentTrackContainer.getId());
             arrayAdapter.setExcluded(new long[]{currentTrackContainer.getId()});
-        }
+        }*/
         setListAdapter(arrayAdapter);
     }
 

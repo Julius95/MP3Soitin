@@ -4,6 +4,7 @@ import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
+import android.arch.persistence.room.Transaction;
 
 import java.util.List;
 
@@ -30,9 +31,11 @@ public interface ArtistDao {
     @Delete
     void delete(Artist artist);
 
+    @Transaction
     @Query("SELECT * FROM artist")
     public List<ArtistWithAlbums> loadAllArtistsWithAlbums();
 
+    @Transaction
     @Query("SELECT * FROM artist WHERE id = :id")
     public List<ArtistWithAlbums> loadArtistsWithAlbums(long id);
 }

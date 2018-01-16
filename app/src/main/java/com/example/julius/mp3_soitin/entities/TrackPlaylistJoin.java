@@ -39,10 +39,26 @@ public class TrackPlaylistJoin{
         };
     }
 
+    public static Function<Void, Void> deleteTrackPlayListJoin(AppDatabase db, Track track, PlayList playlist){
+        return (Void v) -> {
+            Log.d("UUUU" , "HAETTIIN " + db.track_playList_JOIN_Dao().get(track.getId(), playlist.getId()).toString());
+            db.track_playList_JOIN_Dao().delete(track.getId(), playlist.getId());
+            return null;
+        };
+    }
+
     public static Function<Void, List<Object>> getAcceptablePlaylistsForTrack(AppDatabase db, Track track){
         return (Void v) ->{
             List<Object> res = new ArrayList<Object>();
             res.addAll(db.track_playList_JOIN_Dao().getPlayListsThatCanAcceptThisTrack(track.getId()));
+            return res;
+        };
+    }
+
+    public static Function<Void, List<Object>> getPlaylistsThatIncludeTrack(AppDatabase db, Track track){
+        return (Void v) ->{
+            List<Object> res = new ArrayList<Object>();
+            res.addAll(db.track_playList_JOIN_Dao().getPlayListsThatIncludeThisTrack(track.getId()));
             return res;
         };
     }

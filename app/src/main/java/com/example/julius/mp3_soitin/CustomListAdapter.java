@@ -26,7 +26,6 @@ import java.util.List;
 public class CustomListAdapter extends ArrayAdapter<Track> {
 
     private ListFragment callback;
-    private long[] excluded;
 
     public CustomListAdapter(Context context, int textViewResourceId, ListFragment listener ) {
         super(context, textViewResourceId);
@@ -47,6 +46,9 @@ public class CustomListAdapter extends ArrayAdapter<Track> {
             LayoutInflater vi;
             vi = LayoutInflater.from(getContext());
             v = vi.inflate(R.layout.tracklist_rowitem, null);
+
+            //Tämä on tärkeä sillä mahdollistaa contextmenun luomisen pitkästä listan elementin painalluksesta
+            v.setLongClickable(true);
         }
         Track track = getItem(position);
         if (track != null) {
@@ -62,12 +64,12 @@ public class CustomListAdapter extends ArrayAdapter<Track> {
                 @Override
                 public void onClick(View v) {
                     //do something
-                    Log.d("UUUU", "BUTTON LIST");
-                    ListDialog dialog = ListDialog.newInstance(track, excluded);
+                    /*Log.d("UUUU", "BUTTON LIST");
+                    ListDialog dialog = ListDialog.newInstance(track);
                     if(callback!=null && callback instanceof ListDialog.NoticeDialogListener)
                         dialog.setListener((ListDialog.NoticeDialogListener) callback);
                     //dialog.setListener(this);
-                    dialog.show(callback.getActivity().getSupportFragmentManager(), "NoticeDialogFragment");
+                    dialog.show(callback.getActivity().getSupportFragmentManager(), "NoticeDialogFragment");*/
                 }
             });
         }
@@ -76,10 +78,5 @@ public class CustomListAdapter extends ArrayAdapter<Track> {
             v.setOnClickListener(view -> callback.onListItemClick(callback.getListView(), callback.getView(), position, getItem(position).getId()));
 
         return v;
-    }
-
-    public void setExcluded(long[] excluded){
-        this.excluded = excluded;
-        Log.d("UUUU", "in exc " + excluded[0]);
     }
 }

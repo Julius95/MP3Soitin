@@ -16,10 +16,12 @@ import com.example.julius.mp3_soitin.entities.PlayList;
 import com.example.julius.mp3_soitin.entities.Track;
 import com.example.julius.mp3_soitin.entities.TrackPlaylistJoin;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 import static java.util.stream.Collectors.toList;
 
@@ -31,16 +33,20 @@ public class ListDialog extends DialogFragment implements AsyncTaskListener{
     private ListDialog.NoticeDialogListener listener;
     private List<PlayList> lista = new ArrayList<PlayList>();
     private ArrayAdapter<PlayList> arrayAdapter;
-    private long [] excludedIds;
 
-    public static ListDialog newInstance(Track track, long [] excludeablePlaylists) {
+    /**
+     * Tämä staattinen factory-metodi tarkoitettu raidan soittolista tietojen hakemiseen
+     * fetchFromWhereTrackNotPresent on boolean arvo, joka määrä etsitäänkö soittolistoja joissa ko. raita on(true) vai ei(false)
+     * @param track
+     * @param fetchFromWhereTrackNotPresent
+     * @return
+     */
+    public static ListDialog newInstance(Track track , boolean fetchFromWhereTrackNotPresent) {
         ListDialog listDialog = new ListDialog();
         if(track!=null){
             Bundle args = new Bundle();
             args.putParcelable("track", track);
-            if(excludeablePlaylists != null){
-                args.putLongArray("excluded",excludeablePlaylists);
-            }
+            args.putBoolean("FetchingMethod", fetchFromWhereTrackNotPresent);
             listDialog.setArguments(args);
         }
         return listDialog;
@@ -49,17 +55,15 @@ public class ListDialog extends DialogFragment implements AsyncTaskListener{
     @Override
     public void onTaskCompleted(Object o) {
         lista.addAll((List<PlayList>)o);
-        if(excludedIds != null){
-            for(PlayList pl : lista){
-                Log.d("UUUU", "Ennen " + pl.getName()+ " " + pl.getId() + " exc id : " + excludedIds[0]);
-            }
-            List<PlayList> temp = lista.stream().filter(x -> Arrays.stream(excludedIds).noneMatch( e -> Long.compare(x.getId(), e) == 0)).collect(toList());
-            for(PlayList pl : temp){
-                Log.d("UUUU", "Jälkeen " + pl.getName()+ " " + pl.getId());
-            }
-            lista.clear();
-            lista.addAll(temp);
+        /*for(PlayList pl : lista){
+            Log.d("UUUU", "Ennen " + pl.getName()+ " " + pl.getId() + " exc id : " + excludedIds[0]);
         }
+        List<PlayList> temp = lista.stream().filter(x -> Arrays.stream(excludedIds).noneMatch( e -> Long.compare(x.getId(), e) == 0)).collect(toList());
+        for(PlayList pl : temp){
+            Log.d("UUUU", "Jälkeen " + pl.getName()+ " " + pl.getId());
+        }
+        lista.clear();
+        lista.addAll(temp);*/
         arrayAdapter.notifyDataSetChanged();
     }
 
@@ -70,10 +74,16 @@ public class ListDialog extends DialogFragment implements AsyncTaskListener{
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Track track = getArguments().getParcelable("track");
-        excludedIds = getArguments().getLongArray("excluded");
+        boolean mode = getArguments().getBoolean("FetchingMethod");
+        //excludedIds = getArguments().getLongArray("excluded");
         if(arrayAdapter==null) {
-            arrayAdapter = new ArrayAdapter<PlayList>(getContext(), android.R.layout.select_dialog_singlechoice, lista);
-            new MainActivity.LoadAsyncTask(TrackPlaylistJoin.getAcceptablePlaylistsForTrack(AppDatabase.getInstance(getContext()), track), this).execute();
+            arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.select_dialog_singlechoice, lista);
+            if(mode){
+                new MainActivity.LoadAsyncTask(TrackPlaylistJoin.getAcceptablePlaylistsForTrack(AppDatabase.getInstance(getContext()), track), this).execute();
+            }else{
+                new MainActivity.LoadAsyncTask(TrackPlaylistJoin.getPlaylistsThatIncludeTrack(AppDatabase.getInstance(getContext()), track), this).execute();
+            }
+
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         // Get the layout inflater
@@ -89,11 +99,19 @@ public class ListDialog extends DialogFragment implements AsyncTaskListener{
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         PlayList playList = arrayAdapter.getItem(which);
-                        TrackPlaylistJoin tp = new TrackPlaylistJoin(track.getId(), playList.getId());
-                        new MainActivity.AsyncTaskNoReturnValue(TrackPlaylistJoin.saveTrackPlayListJoinToDB(AppDatabase.getInstance(getContext()), tp)).execute();
-                        AlertDialog.Builder builderInner = new AlertDialog.Builder(getContext());
-                        builderInner.setMessage(playList.getName());
-                        builderInner.setTitle("Raita " + track.getName() + " on lisätty soittolistaan " + playList.getName());
+                        AlertDialog.Builder builderInner;
+                        if(mode){
+                            TrackPlaylistJoin tp = new TrackPlaylistJoin(track.getId(), playList.getId());
+                            new MainActivity.AsyncTaskNoReturnValue(TrackPlaylistJoin.saveTrackPlayListJoinToDB(AppDatabase.getInstance(getContext()), tp)).execute();
+                            builderInner = new AlertDialog.Builder(getContext());
+                            builderInner.setMessage(playList.getName());
+                            builderInner.setTitle("Raita " + track.getName() + " on lisätty soittolistaan " + playList.getName());
+                        }else{
+                            new MainActivity.AsyncTaskNoReturnValue(TrackPlaylistJoin.deleteTrackPlayListJoin(AppDatabase.getInstance(getContext()), track, playList)).execute();
+                            builderInner = new AlertDialog.Builder(getContext());
+                            builderInner.setMessage(playList.getName());
+                            builderInner.setTitle("Raita " + track.getName() + " on poistettu soittolistasta " + playList.getName());
+                        }
                         builderInner.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog,int which) {
