@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+import static android.arch.persistence.room.ForeignKey.CASCADE;
+
 /**
  * Created by Julius on 4.12.2017.
  */
@@ -18,10 +20,14 @@ import java.util.function.Function;
         foreignKeys = {//track = track , genre = playlist
                 @ForeignKey(entity = Track.class,
                         parentColumns = "id",
-                        childColumns = "trackId"),
+                        childColumns = "trackId",
+                        onDelete = CASCADE
+                ),
                 @ForeignKey(entity = PlayList.class,
                         parentColumns = "id",
-                        childColumns = "playlistId")
+                        childColumns = "playlistId",
+                        onDelete = CASCADE
+                )
         })
 public class TrackPlaylistJoin{
     public final long trackId;

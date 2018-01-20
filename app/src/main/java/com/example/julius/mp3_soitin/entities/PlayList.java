@@ -70,6 +70,14 @@ public class PlayList implements TrackContainer{
         };
     }
 
+    public static Function<Void, Void> deletePlayList(AppDatabase db, PlayList playlist){
+        return (Void v) -> {
+            Log.d("UUUU" , "HAETTIIN " + db.playListDao().loadAllByIds(new long []{playlist.getId()}));
+            db.playListDao().delete(playlist);
+            return null;
+        };
+    }
+
     public static Function<Void, Object> savePlayListToDB(AppDatabase db, PlayList playList){
         return (Void v) -> {
             Log.d("UUUU", "saving to database db");

@@ -17,7 +17,7 @@ public interface PlayListDao {
     List<PlayList> getAll();
 
     @Query("SELECT * FROM playlist WHERE id IN (:Ids)")
-    List<PlayList> loadAllByIds(int[] Ids);
+    List<PlayList> loadAllByIds(long[] Ids);
 
     @Query("SELECT * FROM playlist WHERE name LIKE :playlist_name LIMIT 1")
     PlayList findByName(String playlist_name);
@@ -28,6 +28,6 @@ public interface PlayListDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     long[] insertAll(PlayList... pls);
 
-    @Delete
+    @Delete()
     void delete(PlayList pl);
 }

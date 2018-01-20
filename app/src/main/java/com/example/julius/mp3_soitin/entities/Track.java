@@ -31,21 +31,27 @@ public class Track implements Parcelable {
     @ColumnInfo(name = "track_path")
     private String path;
 
+    @ColumnInfo(name = "length")
+    private int length;
+
     @ColumnInfo(name = "albumId")
     public long albumId; // Album id
 
     @Ignore
-    public Track(String name, String path) {
+    public Track(String name, String path, int length) {
         this.name = name;
         this.path = path;
+        this.length = length;
         //this.albumId = -1;
     }
 
     @Ignore
-    public Track(String name, String path, long albumId) {
+    public Track(String name, String path, int length, long albumId) {
         this.name = name;
         this.path = path;
         this.albumId = albumId;
+        this.length = length;
+        Log.d("UUUU", "PITUUS " + length);
     }
 
     public Track(){}
@@ -81,6 +87,10 @@ public class Track implements Parcelable {
     public void setAlbumId(long albumId) {
         this.albumId = albumId;
     }
+
+    public int getLength() {return length;}
+
+    public void setLength(int length) {this.length = length;}
 
     @Override
     public String toString(){

@@ -1,13 +1,19 @@
 package com.example.julius.mp3_soitin;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -98,6 +104,65 @@ public class PlayListFragment extends ListFragment implements AsyncTaskListener,
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
+    }
+
+    public void onActivityCreated(Bundle savedState) {
+        super.onActivityCreated(savedState);
+        registerForContextMenu(this.getListView());
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v,
+                                    ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        AdapterView.AdapterContextMenuInfo adapter;
+        try{
+            adapter = (AdapterView.AdapterContextMenuInfo) menuInfo;
+        }catch (ClassCastException e) {
+            Log.e("UUUU", "bad menuInfo in TrackList", e);
+            return;
+        }
+        menu.setHeaderTitle(getListAdapter().getItem(adapter.position).toString());
+        menu.add(Menu.NONE, 0, Menu.NONE, R.string.info);
+        menu.add(Menu.NONE, 1, Menu.NONE, R.string.removePlaylist);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info;
+        int id;
+        PlayList playlist;
+        try {
+            info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+            id = (int)getListAdapter().getItemId(info.position);
+            playlist = (PlayList)getListAdapter().getItem(id);
+        } catch (ClassCastException e) {
+            Log.e("", "bad menuInfo", e);
+            return false;
+        }
+        Log.d("UUUU", "id = " + id + " " + item.getTitle() + " " + item.getItemId());
+        switch(item.getItemId()){
+            /*
+            Ollaan poistamassa soittolista
+             */
+            case 1:
+                new AlertDialog.Builder(getContext())
+                    .setTitle("Soittolistan " + playlist.getName() + " poisto")
+                    .setMessage("Haluatko poistaa valitun soittolistan?")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            new MainActivity.AsyncTaskNoReturnValue(PlayList.deletePlayList(AppDatabase.getInstance(getContext()), playlist)).execute();
+                            playlists.remove(playlist);
+                            arrayAdapter.notifyDataSetChanged();
+                            AlertDialog.Builder builderInner = new AlertDialog.Builder(getContext());
+                            builderInner.setTitle("Raita " + playlist.getName() + " on poistettu");
+                        }})
+                    .setNegativeButton(android.R.string.no, null).show();
+                break;
+        }
+        return true;
     }
 
     @Override

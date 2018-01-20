@@ -1,10 +1,7 @@
 package com.example.julius.mp3_soitin;
 
 import android.Manifest;
-import android.arch.persistence.db.SupportSQLiteDatabase;
-import android.arch.persistence.room.Room;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.media.MediaMetadataRetriever;
@@ -26,20 +23,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.julius.mp3_soitin.entities.Album;
-import com.example.julius.mp3_soitin.entities.AlbumWithTracks;
 import com.example.julius.mp3_soitin.entities.Artist;
-import com.example.julius.mp3_soitin.entities.ArtistWithAlbums;
 import com.example.julius.mp3_soitin.entities.Genre;
 import com.example.julius.mp3_soitin.entities.PlayList;
 import com.example.julius.mp3_soitin.entities.Track;
-import com.example.julius.mp3_soitin.entities.TracksGenreJoin;
 
 import java.io.File;
-import java.sql.Date;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Stack;
 import java.util.function.Function;
 
 //https://developer.android.com/training/permissions/requesting.html
@@ -47,7 +38,7 @@ import java.util.function.Function;
 public class MainActivity extends AppCompatActivity implements TrackListFragment.OnFragmentInteractionListener , AlbumListFragment.OnAlbumFragmentInteractionListener
 , PlayListFragment.OnPlaylistFragmentInteractionListener {
 
-    private MainActivityFragment musicPlayerFragment = new MainActivityFragment();
+    private PlayerFragment musicPlayerFragment = new PlayerFragment();
 
     private SongsManager songsManager = new SongsManager();
 
@@ -342,10 +333,11 @@ public class MainActivity extends AppCompatActivity implements TrackListFragment
                 Track track = db.trackDao().findByName(buf);//Palauttaa NULL jos ei ole tietokannassa
                 if(track == null){
                     Log.d("UUUU", "Inserting Track " + buf);
-                    db.trackDao().insert(new Track(buf, file.getAbsolutePath(), album.getId()));
+                    db.trackDao().insert(new Track(buf, file.getAbsolutePath(),Math.round(Long.parseLong(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION))/1000) ,album.getId()));
                 }else{
                     Log.d("UUUU", "EI OLE NULL " + track.getName());
                 }
+                //Log.d("UUUU", "Pituus " + Math.round(Long.parseLong(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION))/1000));
             }
             return "Done";
         }

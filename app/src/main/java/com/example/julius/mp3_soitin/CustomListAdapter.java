@@ -57,21 +57,10 @@ public class CustomListAdapter extends ArrayAdapter<Track> {
             TextView tt3 = (TextView) v.findViewById(R.id.description);
 
             tt1.setText(track.getName());
-
-            Button callbtn = (Button)v.findViewById(R.id.add_btn);
-
-            callbtn.setOnClickListener(new View.OnClickListener(){
-                @Override
-                public void onClick(View v) {
-                    //do something
-                    /*Log.d("UUUU", "BUTTON LIST");
-                    ListDialog dialog = ListDialog.newInstance(track);
-                    if(callback!=null && callback instanceof ListDialog.NoticeDialogListener)
-                        dialog.setListener((ListDialog.NoticeDialogListener) callback);
-                    //dialog.setListener(this);
-                    dialog.show(callback.getActivity().getSupportFragmentManager(), "NoticeDialogFragment");*/
-                }
-            });
+            int minuutit = track.getLength()/60;
+            int sekunnit = track.getLength() % 60;
+            Log.d("UUUU", " " + track.getLength() + " lasku " + minuutit);
+            tt2.setText(minuutit + " : " + (sekunnit<10 ? "0"+sekunnit : sekunnit));
         }
 
         if(callback!=null)

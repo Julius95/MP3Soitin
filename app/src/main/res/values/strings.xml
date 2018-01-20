@@ -12,6 +12,7 @@
     <string name="raidat">Raidat</string>
     <string name="info">Info</string>
     <string name="removefromplaylist">Poista soittolistasta</string>
+    <string name="removePlaylist">Poista soittolista</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

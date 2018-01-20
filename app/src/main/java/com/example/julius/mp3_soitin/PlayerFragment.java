@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainActivityFragment extends Fragment {
+public class PlayerFragment extends Fragment {
 
     private Button b1,b2,b3,b4;
     private ImageView iv;
@@ -41,7 +41,7 @@ public class MainActivityFragment extends Fragment {
 
     private boolean handlerCreated, initialized;
 
-    public MainActivityFragment() {
+    public PlayerFragment() {
         initialized = false;
         handlerCreated = false;
     }

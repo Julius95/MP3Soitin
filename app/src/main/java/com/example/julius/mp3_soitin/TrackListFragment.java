@@ -181,6 +181,9 @@ public class TrackListFragment extends ListFragment implements AsyncTaskListener
         Log.d("UUUU", "id = " + id + " " + item.getTitle() + " " + item.getItemId());
         ListDialog dialog;
         switch(item.getItemId()){
+            case 0:
+
+                break;
             /*
             Ollaan lisäämässä kappaletta soittolistaan
              */
