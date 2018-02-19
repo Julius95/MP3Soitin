@@ -5,5 +5,5 @@ package com.example.julius.mp3_soitin;
  */
 
 public interface AsyncTaskListener {
-    public void onTaskCompleted(Object o);
+    void onTaskCompleted(Object o);
 }

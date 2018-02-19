@@ -63,7 +63,7 @@ public class TrackPlaylistJoin{
 
     public static Function<Void, List<Object>> getPlaylistsThatIncludeTrack(AppDatabase db, Track track){
         return (Void v) ->{
-            List<Object> res = new ArrayList<Object>();
+            List<Object> res = new ArrayList<>();
             res.addAll(db.track_playList_JOIN_Dao().getPlayListsThatIncludeThisTrack(track.getId()));
             return res;
         };

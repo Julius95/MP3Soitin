@@ -8,6 +8,7 @@ import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
@@ -72,17 +73,20 @@ public class MainActivity extends AppCompatActivity implements TrackListFragment
             Fragment currentBackStackFragment = getSupportFragmentManager().findFragmentByTag(tag);
             if(currentBackStackFragment == null)
                 return;
+            TabLayout.Tab tab;
             if(currentBackStackFragment instanceof TrackListFragment){
                 Log.d("UUUU", "TrackListFragment!!!");
                 activeTabPosition = 0;
-                tabLayout.getTabAt(activeTabPosition).select();
             }else if(currentBackStackFragment instanceof AlbumListFragment){
                 activeTabPosition = 1;
-                tabLayout.getTabAt(activeTabPosition).select();
+                //tabLayout.getTabAt(activeTabPosition).select();
             }else if(currentBackStackFragment instanceof PlayListFragment){
                 activeTabPosition = 2;
-                tabLayout.getTabAt(activeTabPosition).select();
+                //tabLayout.getTabAt(activeTabPosition).select();
             }
+            tab = tabLayout.getTabAt(activeTabPosition);
+            if(tab != null)
+                tab.select();
             if(backButtonPressed){
                 //pop history stack here
                 backButtonPressed = false;
@@ -116,10 +120,10 @@ public class MainActivity extends AppCompatActivity implements TrackListFragment
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -128,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements TrackListFragment
             }
         });
 
-        tabLayout=(TabLayout)findViewById(R.id.tabs);
+        tabLayout = findViewById(R.id.tabs);
 
         tabLayout.addTab(tabLayout.newTab().setText("Tracks").setIcon(R.drawable.ic_audiotrack_black_24dp));
         tabLayout.addTab(tabLayout.newTab().setText("Albums").setIcon(R.drawable.ic_album_black_24dp));
@@ -202,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements TrackListFragment
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_READ_CONTACTS: {
                 // If request is cancelled, the result arrays are empty.
@@ -244,6 +248,7 @@ public class MainActivity extends AppCompatActivity implements TrackListFragment
                         }
                         while (musicCursor.moveToNext());
                     }
+                    musicCursor.close();
                 } else {
                     Log.d("UUUU", "PERMISSION DENIED");
                     // permission denied, boo! Disable the
@@ -266,9 +271,11 @@ public class MainActivity extends AppCompatActivity implements TrackListFragment
 
     private void changeFragment(Fragment newFragement){
         FragmentTransaction tran = getSupportFragmentManager().beginTransaction();
+        //tran.
         tran.replace(R.id.FragmentContainer, newFragement, tag);
-        tran.addToBackStack(null);
-        tran.commit();
+        //tran.addToBackStack(null);
+        //tran.commit();
+        tran.commitAllowingStateLoss();
     }
 
     @Override
@@ -295,7 +302,7 @@ public class MainActivity extends AppCompatActivity implements TrackListFragment
     private class ScanAsyncTask extends AsyncTask< Void, Void, String>
     {
         @Override
-        protected String doInBackground(Void... voids) {
+        protected String doInBackground(Void ... voids) {
             List<File> musicFiles = songsManager.getPlayList();
             MediaMetadataRetriever mmr = new MediaMetadataRetriever();
             for(File file : musicFiles){
@@ -382,6 +389,7 @@ public class MainActivity extends AppCompatActivity implements TrackListFragment
 
         @Override
         protected void onPostExecute(List<Object> result) {
+            function = null;
             listener.onTaskCompleted(result);
         }
     }
@@ -403,6 +411,7 @@ public class MainActivity extends AppCompatActivity implements TrackListFragment
 
         @Override
         protected void onPostExecute(Object result) {
+            function = null;
             listener.onTaskCompleted(result);
         }
     }
@@ -418,6 +427,11 @@ public class MainActivity extends AppCompatActivity implements TrackListFragment
         @Override
         protected Void doInBackground(Void... voids) {
             return function.apply(null);
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            function = null;
         }
     }
 

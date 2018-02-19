@@ -1,17 +1,14 @@
 package com.example.julius.mp3_soitin.entities;
 
 import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
-import android.arch.persistence.room.Relation;
 import android.util.Log;
 
 import com.example.julius.mp3_soitin.AppDatabase;
 import com.example.julius.mp3_soitin.TrackListFragment;
 
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -39,7 +36,7 @@ public class Album implements TrackContainer{
     @Ignore
     public Album(String name, String Date, int nmr_of_tracks, long artistId) {
         this.name = name;
-        this.pvm = pvm;
+        this.pvm = Date;
         this.nmr_of_tracks = nmr_of_tracks;
         artist_id = artistId;
     }
@@ -97,7 +94,7 @@ public class Album implements TrackContainer{
     }
 
     public static Function<Void, List<Object>> getAllAlbumsFromDB(AppDatabase db){
-        Function<Void, List<Object>> f = (Void v) -> {
+        return (Void v) -> {
             List<Object> albums = new ArrayList<Object>();
             albums.addAll(db.albumDao().getAll());
             for(Object t : albums){
@@ -106,8 +103,6 @@ public class Album implements TrackContainer{
             }
             return albums;
         };
-        return f;
     }
-
 }
 

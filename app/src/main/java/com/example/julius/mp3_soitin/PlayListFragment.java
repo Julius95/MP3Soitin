@@ -39,9 +39,6 @@ public class PlayListFragment extends ListFragment implements AsyncTaskListener,
     private List<PlayList> playlists = new ArrayList<PlayList>();
     private ArrayAdapter<PlayList> arrayAdapter;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     private OnPlaylistFragmentInteractionListener mListener;
 
@@ -71,9 +68,16 @@ public class PlayListFragment extends ListFragment implements AsyncTaskListener,
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
+            String mParam1;
+            String mParam2;
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        arrayAdapter = new ArrayAdapter<PlayList>(
+                getContext(),
+                android.R.layout.simple_list_item_1,
+                playlists);
+        setListAdapter(arrayAdapter);
         new MainActivity.LoadAsyncTask(PlayList.getAllPlayListsFromDB(AppDatabase.getInstance(getContext())), this).execute();
     }
 
@@ -210,11 +214,14 @@ public class PlayListFragment extends ListFragment implements AsyncTaskListener,
         }
         playlists.clear();
         playlists.addAll((List<PlayList>) o);
-        arrayAdapter = new ArrayAdapter<PlayList>(
-                getContext(),
-                android.R.layout.simple_list_item_1,
-                playlists);
-        setListAdapter(arrayAdapter);
+        if(getListAdapter()==null){
+            arrayAdapter = new ArrayAdapter<PlayList>(
+                    getContext(),
+                    android.R.layout.simple_list_item_1,
+                    playlists);
+            setListAdapter(arrayAdapter);
+        }
+        arrayAdapter.notifyDataSetChanged();
     }
 
 }

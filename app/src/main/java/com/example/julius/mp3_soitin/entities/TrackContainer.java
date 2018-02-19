@@ -10,7 +10,7 @@ import com.example.julius.mp3_soitin.TrackListFragment;
 
 public interface TrackContainer {
 
-    public String getName();
-    public TrackListFragment.IdType getType();
-    public long getId();
+    String getName();
+    TrackListFragment.IdType getType();
+    long getId();
 }

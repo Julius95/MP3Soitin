@@ -129,14 +129,14 @@ public class Track implements Parcelable {
         }
     };
 
-    public static AsyncTask<AppDatabase, Void, List<Track>> getAsyncLoad(){
+    /*public static AsyncTask<AppDatabase, Void, List<Track>> getAsyncLoad(){
         return new AsyncTask<AppDatabase, Void, List<Track>>() {
             @Override
             protected List<Track> doInBackground(AppDatabase... appDatabases) {
                 return appDatabases[0].trackDao().getAll();
             }
         };
-    }
+    }*/
 
     public static Function<Void, List<Object>> getAllTracks(AppDatabase database){
         return (Void v) -> {

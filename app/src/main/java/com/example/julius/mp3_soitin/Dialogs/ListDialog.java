@@ -4,8 +4,8 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.ArrayAdapter;
 
@@ -16,22 +16,15 @@ import com.example.julius.mp3_soitin.entities.PlayList;
 import com.example.julius.mp3_soitin.entities.Track;
 import com.example.julius.mp3_soitin.entities.TrackPlaylistJoin;
 
-import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.function.Function;
-
-import static java.util.stream.Collectors.toList;
 
 /**
- * Created by Julius on 9.12.2017.
+ * Custom listdialog used to show tracks
  */
 
 public class ListDialog extends DialogFragment implements AsyncTaskListener{
-    private ListDialog.NoticeDialogListener listener;
-    private List<PlayList> lista = new ArrayList<PlayList>();
+    private List<PlayList> lista = new ArrayList<>();
     private ArrayAdapter<PlayList> arrayAdapter;
 
     /**
@@ -55,27 +48,18 @@ public class ListDialog extends DialogFragment implements AsyncTaskListener{
     @Override
     public void onTaskCompleted(Object o) {
         lista.addAll((List<PlayList>)o);
-        /*for(PlayList pl : lista){
-            Log.d("UUUU", "Ennen " + pl.getName()+ " " + pl.getId() + " exc id : " + excludedIds[0]);
-        }
-        List<PlayList> temp = lista.stream().filter(x -> Arrays.stream(excludedIds).noneMatch( e -> Long.compare(x.getId(), e) == 0)).collect(toList());
-        for(PlayList pl : temp){
-            Log.d("UUUU", "Jälkeen " + pl.getName()+ " " + pl.getId());
-        }
-        lista.clear();
-        lista.addAll(temp);*/
         arrayAdapter.notifyDataSetChanged();
     }
 
     public interface NoticeDialogListener {
-        public void onDialogPositiveClick(PlayList list);
+        void onDialogPositiveClick(PlayList list);
     }
 
     @Override
+    @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Track track = getArguments().getParcelable("track");
         boolean mode = getArguments().getBoolean("FetchingMethod");
-        //excludedIds = getArguments().getLongArray("excluded");
         if(arrayAdapter==null) {
             arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.select_dialog_singlechoice, lista);
             if(mode){
@@ -125,6 +109,6 @@ public class ListDialog extends DialogFragment implements AsyncTaskListener{
     }
 
     public void setListener(ListDialog.NoticeDialogListener lis){
-        this.listener = lis;
+        //this.listener = lis;
     }
 }

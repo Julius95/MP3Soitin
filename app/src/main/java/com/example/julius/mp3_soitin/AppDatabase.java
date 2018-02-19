@@ -35,11 +35,15 @@ public abstract class AppDatabase extends RoomDatabase{
     public abstract TrackPlaylistJoinDao track_playList_JOIN_Dao();
     public abstract TracksGenreJoinDao track_genre_JOIN_Dao();
 
+    private static final Object sLock = new Object();
+
     public static AppDatabase getInstance(Context context){
-        if(db == null) {
-            db = Room.databaseBuilder(context,
-            AppDatabase.class, "database-name").fallbackToDestructiveMigration().build();
+        synchronized (sLock) {
+            if (db == null) {
+                db = Room.databaseBuilder(context,
+                        AppDatabase.class, "database-name").fallbackToDestructiveMigration().build();
+            }
+            return db;
         }
-        return db;
     }
 }

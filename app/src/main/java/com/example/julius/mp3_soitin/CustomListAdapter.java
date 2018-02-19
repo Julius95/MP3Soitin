@@ -1,22 +1,17 @@
 package com.example.julius.mp3_soitin;
 
 import android.content.Context;
-import android.support.v4.app.DialogFragment;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 
-import com.example.julius.mp3_soitin.Dialogs.ListDialog;
 import com.example.julius.mp3_soitin.entities.Track;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,10 +22,6 @@ public class CustomListAdapter extends ArrayAdapter<Track> {
 
     private ListFragment callback;
 
-    public CustomListAdapter(Context context, int textViewResourceId, ListFragment listener ) {
-        super(context, textViewResourceId);
-        callback = listener;
-    }
 
     public CustomListAdapter(Context context, int resource, List<Track> items, ListFragment listener) {
         super(context, resource, items);
@@ -38,7 +29,8 @@ public class CustomListAdapter extends ArrayAdapter<Track> {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    @NonNull
+    public View getView(int position, View convertView,@NonNull ViewGroup parent) {
 
         View v = convertView;
 
@@ -52,14 +44,13 @@ public class CustomListAdapter extends ArrayAdapter<Track> {
         }
         Track track = getItem(position);
         if (track != null) {
-            TextView tt1 = (TextView) v.findViewById(R.id.id);
-            TextView tt2 = (TextView) v.findViewById(R.id.categoryId);
-            TextView tt3 = (TextView) v.findViewById(R.id.description);
+            TextView tt1 = v.findViewById(R.id.id);
+            TextView tt2 = v.findViewById(R.id.categoryId);
+            TextView tt3 = v.findViewById(R.id.description);
 
             tt1.setText(track.getName());
             int minuutit = track.getLength()/60;
             int sekunnit = track.getLength() % 60;
-            Log.d("UUUU", " " + track.getLength() + " lasku " + minuutit);
             tt2.setText(minuutit + " : " + (sekunnit<10 ? "0"+sekunnit : sekunnit));
         }
 

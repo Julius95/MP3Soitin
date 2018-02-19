@@ -33,9 +33,9 @@ public interface ArtistDao {
 
     @Transaction
     @Query("SELECT * FROM artist")
-    public List<ArtistWithAlbums> loadAllArtistsWithAlbums();
+    List<ArtistWithAlbums> loadAllArtistsWithAlbums();
 
     @Transaction
     @Query("SELECT * FROM artist WHERE id = :id")
-    public List<ArtistWithAlbums> loadArtistsWithAlbums(long id);
+    List<ArtistWithAlbums> loadArtistsWithAlbums(long id);
 }

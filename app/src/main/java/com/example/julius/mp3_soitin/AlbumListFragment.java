@@ -1,7 +1,6 @@
 package com.example.julius.mp3_soitin;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
@@ -12,11 +11,9 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.example.julius.mp3_soitin.entities.Album;
-import com.example.julius.mp3_soitin.entities.Track;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * Created by Julius on 7.12.2017.
@@ -29,9 +26,6 @@ public class AlbumListFragment extends ListFragment implements AsyncTaskListener
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
     //private SongsManager songsManager = new SongsManager();
 
     private OnAlbumFragmentInteractionListener mListener;
@@ -43,6 +37,8 @@ public class AlbumListFragment extends ListFragment implements AsyncTaskListener
     @Override//https://stackoverflow.com/questions/9245408/best-practice-for-instantiating-a-new-android-fragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        String mParam1;
+        String mParam2;
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -62,16 +58,8 @@ public class AlbumListFragment extends ListFragment implements AsyncTaskListener
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_tracklist, container, false);
         TextView textview = v.findViewById(R.id.raidatText);
-        textview.setText("ALBUMIT");
+        textview.setText(R.string.albumit);
         return v;
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        Log.d("UUUU", "CallBack");
-        if (mListener != null) {
-            //mListener.onFragmentInteraction(uri);
-        }
     }
 
     @Override
@@ -113,7 +101,7 @@ public class AlbumListFragment extends ListFragment implements AsyncTaskListener
     @Override
     public void onTaskCompleted(Object o) {
         List<Album> albums = (List<Album>) o;
-        ArrayAdapter<Album> arrayAdapter = new ArrayAdapter<Album>(
+        ArrayAdapter<Album> arrayAdapter = new ArrayAdapter<>(
                 getContext(),
                 android.R.layout.simple_list_item_1,
                 albums);

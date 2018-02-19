@@ -38,11 +38,13 @@ import java.util.function.Function;
  * Use the {@link TrackListFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class TrackListFragment extends ListFragment implements AsyncTaskListener, ListDialog.NoticeDialogListener{
+public class TrackListFragment extends ListFragment implements AsyncTaskListener{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+
+    private List<Track> raidat;
 
     private TrackContainer currentTrackContainer;
 
@@ -55,34 +57,31 @@ public class TrackListFragment extends ListFragment implements AsyncTaskListener
 
     private TextView maintextview;
 
+    CustomListAdapter arrayAdapter;
+
     public TrackListFragment() {
         // Required empty public constructor
+        raidat = new ArrayList<>();
     }
 
     @Override//https://stackoverflow.com/questions/9245408/best-practice-for-instantiating-a-new-android-fragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //Fetch tracks from database
-        if(currentTrackContainer == null){
+        arrayAdapter = new CustomListAdapter(getContext(),android.R.layout.simple_list_item_1, raidat,
+                this);
+        setListAdapter(arrayAdapter);
+        /*if(currentTrackContainer == null){
             new MainActivity.LoadAsyncTask(Track.getAllTracks(AppDatabase.getInstance(getContext())), this).execute();
         }else{
 
-        }
+        }*/
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        /*if(currentAlbum==null){
-            if(!history.isEmpty())
-                history.pop();
-            if(history.isEmpty() || history.peek() == null){
-                new MainActivity.LoadAsyncTask(Track.getAllTracks(), this, getContext()).execute();
-            }else{
-                setCurrentAlbum(history.pop());
-            }
-        }*/
 
         View v = inflater.inflate(R.layout.fragment_tracklist, container, false);
 
@@ -105,14 +104,6 @@ public class TrackListFragment extends ListFragment implements AsyncTaskListener
     public void onActivityCreated(Bundle savedState) {
         super.onActivityCreated(savedState);
         registerForContextMenu(this.getListView());
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        Log.d("UUUU", "CallBack");
-        if (mListener != null) {
-            //mListener.onFragmentInteraction(uri);
-        }
     }
 
     @Override
@@ -189,7 +180,7 @@ public class TrackListFragment extends ListFragment implements AsyncTaskListener
              */
             case 1:
                 dialog = ListDialog.newInstance(track, true);
-                dialog.setListener((ListDialog.NoticeDialogListener) this);
+                //dialog.setListener(this);
                 dialog.show(this.getActivity().getSupportFragmentManager(), "NoticeDialogFragment");
                 break;
             /*
@@ -197,7 +188,7 @@ public class TrackListFragment extends ListFragment implements AsyncTaskListener
              */
             case 2:
                 dialog = ListDialog.newInstance(track, false);
-                dialog.setListener((ListDialog.NoticeDialogListener) this);
+                //dialog.setListener(this);
                 dialog.show(this.getActivity().getSupportFragmentManager(), "NoticeDialogFragment");
                 break;
         }
@@ -206,18 +197,15 @@ public class TrackListFragment extends ListFragment implements AsyncTaskListener
 
     @Override
     public void onTaskCompleted(Object o) {
-        List<Track> tracks = (List<Track>) o;
-        /*ArrayAdapter<Track> arrayAdapter = new ArrayAdapter<Track>(
-                getContext(),
-                android.R.layout.simple_list_item_1,//android.R.layout.simple_list_item_1
-                tracks);*/
-        CustomListAdapter arrayAdapter = new CustomListAdapter(getContext(),android.R.layout.simple_list_item_1, tracks,
-                this);
-        /*if(currentTrackContainer!=null && currentTrackContainer.getType() == IdType.Playlist) {
-            Log.d("UUUU", "SETTING EXC " + currentTrackContainer.getId());
-            arrayAdapter.setExcluded(new long[]{currentTrackContainer.getId()});
-        }*/
-        setListAdapter(arrayAdapter);
+        raidat.clear();
+        raidat.addAll((List<Track>) o);
+        if(getListAdapter() == null){
+            arrayAdapter = new CustomListAdapter(getContext(),android.R.layout.simple_list_item_1, raidat,
+                    this);
+            setListAdapter(arrayAdapter);
+        }
+        arrayAdapter.notifyDataSetChanged();
+
     }
 
     /**
@@ -252,10 +240,5 @@ public class TrackListFragment extends ListFragment implements AsyncTaskListener
             myFragment.setArguments(args);
         }
         return myFragment;
-    }
-
-    @Override
-    public void onDialogPositiveClick(PlayList list) {
-
     }
 }
