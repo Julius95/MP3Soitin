@@ -1,16 +1,14 @@
 package com.example.julius.mp3_soitin;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.media.MediaMetadataRetriever;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -19,43 +17,67 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
-import com.example.julius.mp3_soitin.entities.Album;
-import com.example.julius.mp3_soitin.entities.Artist;
-import com.example.julius.mp3_soitin.entities.Genre;
-import com.example.julius.mp3_soitin.entities.PlayList;
-import com.example.julius.mp3_soitin.entities.Track;
+import com.example.julius.mp3_soitin.data.Repository;
+import com.example.julius.mp3_soitin.data.dao_repositories.AlbumRepository;
+import com.example.julius.mp3_soitin.data.dao_repositories.ArtistRepository;
+import com.example.julius.mp3_soitin.data.dao_repositories.GenreRepository;
+import com.example.julius.mp3_soitin.data.dao_repositories.PlaylistRepository;
+import com.example.julius.mp3_soitin.data.dao_repositories.TrackRepository;
+import com.example.julius.mp3_soitin.data.entities.Album;
+import com.example.julius.mp3_soitin.data.entities.Artist;
+import com.example.julius.mp3_soitin.data.entities.Genre;
+import com.example.julius.mp3_soitin.data.entities.PlayList;
+import com.example.julius.mp3_soitin.data.entities.Track;
+import com.example.julius.mp3_soitin.data.entities.TrackPlaylistJoin;
+import com.example.julius.mp3_soitin.filescanning.BadFile;
+import com.example.julius.mp3_soitin.filescanning.ScanResult;
+import com.example.julius.mp3_soitin.filescanning.MusicFileScanner;
+import com.example.julius.mp3_soitin.views.album.AlbumListFragment;
+import com.example.julius.mp3_soitin.views.album.AlbumPresenter;
+import com.example.julius.mp3_soitin.views.dialogs.DialogTrackPlaylistUseCase;
+import com.example.julius.mp3_soitin.views.dialogs.ListDialog;
+import com.example.julius.mp3_soitin.views.dialogs.SimpleListDialog;
+import com.example.julius.mp3_soitin.views.player.PlayerFragment;
+import com.example.julius.mp3_soitin.views.player.PlayerPresenter;
+import com.example.julius.mp3_soitin.views.playlist.PlayListFragment;
+import com.example.julius.mp3_soitin.views.playlist.PlaylistPresenter;
+import com.example.julius.mp3_soitin.views.track.TrackListFragment;
+import com.example.julius.mp3_soitin.views.track.TrackPresenter;
 
-import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.function.Function;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+
+import static android.support.design.widget.TabLayout.MODE_SCROLLABLE;
 
 //https://developer.android.com/training/permissions/requesting.html
 //http://vinsol.com/blog/2014/09/19/transaction-backstack-and-its-management/
-public class MainActivity extends AppCompatActivity implements TrackListFragment.OnFragmentInteractionListener , AlbumListFragment.OnAlbumFragmentInteractionListener
-, PlayListFragment.OnPlaylistFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements FragmentSwitcher {
 
-    private PlayerFragment musicPlayerFragment = new PlayerFragment();
-
-    private SongsManager songsManager = new SongsManager();
+    private PlayerFragment musicPlayerFragment;
 
     private AppDatabase db;
 
     private TabLayout tabLayout;
 
-    private TrackListFragment trackListFragment = TrackListFragment.newInstance(null);
+    private TrackListFragment trackListFragment;
 
-    private AlbumListFragment albumListFragment = AlbumListFragment.newInstance(null);
+    private AlbumListFragment albumListFragment;
 
-    private PlayListFragment playlistFragment = PlayListFragment.newInstance(null,null);
+    private PlayListFragment playlistFragment;
 
-    //private Stack<Integer> history = new Stack();
-    //
-    private ArrayList<Track> tracks;
+    private Repository<Track> trackrepo;
+    private Repository<Album> albumrepo;
+    private Repository<PlayList> playlistrepo;
+    private Repository<Genre> genrerepo;
+    private Repository<Artist> artistrepo;
 
     private String tag = "visible_fragment";
 
@@ -64,29 +86,42 @@ public class MainActivity extends AppCompatActivity implements TrackListFragment
     private int activeTabPosition = 0;
     public final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1112;
 
+    private HashMap<FragmentType, Screen> map = new HashMap<>();
+    private HashMap<FragmentType, Fragment> viewmap = new HashMap<>();
 
+    private AlertDialog.Builder builder1;
+
+    private void activateFragmentTab(Fragment f){
+        TabLayout.Tab tab;
+        if(f instanceof TrackListFragment){
+            Log.d("UUUU", "TrackListFragment!!!");
+            activeTabPosition = 0;
+        }else if(f instanceof AlbumListFragment){
+            activeTabPosition = 1;
+            //tabLayout.getTabAt(activeTabPosition).select();
+        }else if(f instanceof PlayListFragment){
+            activeTabPosition = 2;
+            //tabLayout.getTabAt(activeTabPosition).select();
+        }else if(f instanceof PlayerFragment){
+            activeTabPosition = 3;
+        }
+        tab = tabLayout.getTabAt(activeTabPosition);
+        if(tab != null)
+            tab.select();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        trackListFragment = TrackListFragment.newInstance(null);
+        albumListFragment = AlbumListFragment.newInstance(null);
+        playlistFragment = PlayListFragment.newInstance(null,null);
+        musicPlayerFragment = new PlayerFragment();
         db = AppDatabase.getInstance(getApplicationContext());
         getSupportFragmentManager().addOnBackStackChangedListener(() -> {
             Fragment currentBackStackFragment = getSupportFragmentManager().findFragmentByTag(tag);
             if(currentBackStackFragment == null)
                 return;
-            TabLayout.Tab tab;
-            if(currentBackStackFragment instanceof TrackListFragment){
-                Log.d("UUUU", "TrackListFragment!!!");
-                activeTabPosition = 0;
-            }else if(currentBackStackFragment instanceof AlbumListFragment){
-                activeTabPosition = 1;
-                //tabLayout.getTabAt(activeTabPosition).select();
-            }else if(currentBackStackFragment instanceof PlayListFragment){
-                activeTabPosition = 2;
-                //tabLayout.getTabAt(activeTabPosition).select();
-            }
-            tab = tabLayout.getTabAt(activeTabPosition);
-            if(tab != null)
-                tab.select();
+            activateFragmentTab(currentBackStackFragment);
             if(backButtonPressed){
                 //pop history stack here
                 backButtonPressed = false;
@@ -123,20 +158,13 @@ public class MainActivity extends AppCompatActivity implements TrackListFragment
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
         tabLayout = findViewById(R.id.tabs);
 
         tabLayout.addTab(tabLayout.newTab().setText("Tracks").setIcon(R.drawable.ic_audiotrack_black_24dp));
         tabLayout.addTab(tabLayout.newTab().setText("Albums").setIcon(R.drawable.ic_album_black_24dp));
         tabLayout.addTab(tabLayout.newTab().setText("PlayLists").setIcon(R.drawable.ic_playlist_play_black_24dp));
+        tabLayout.addTab(tabLayout.newTab().setText("Player").setIcon(R.drawable.ic_play_arrow_black_24dp));
+        tabLayout.setTabMode(MODE_SCROLLABLE);
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -155,6 +183,53 @@ public class MainActivity extends AppCompatActivity implements TrackListFragment
             }
         });
         //tabLayout.addOnTabSelectedListener();
+        DialogTrackPlaylistUseCase usecase = new DialogTrackPlaylistUseCase(){
+            @Override
+            public void getPlayListsThatCanAcceptThisTrack(Consumer<List<PlayList>> callback, Track track) {
+                CompletableFuture.supplyAsync(()-> db.track_playList_JOIN_Dao().getPlayListsThatCanAcceptThisTrack(track.getId()))
+                        .thenAccept((List<PlayList> res) -> uiUpdate(() -> callback.accept(res)));
+            }
+
+            @Override
+            public void getPlaylistsThatIncludeTrack(Consumer<List<PlayList>> callback, Track track) {
+                CompletableFuture.supplyAsync(()-> db.track_playList_JOIN_Dao().getPlayListsThatIncludeThisTrack(track.getId()))
+                        .thenAccept((List<PlayList> res) -> uiUpdate(() -> callback.accept(res)));
+            }
+
+            @Override
+            public void saveTrackToPlaylist(Track track, PlayList playlist) {
+                TrackPlaylistJoin tjp = new TrackPlaylistJoin(track.getId(), playlist.getId());
+                CompletableFuture.runAsync(()-> db.track_playList_JOIN_Dao().insert(tjp));
+            }
+
+            @Override
+            public void deleteTrackFromPlaylist(Track track, PlayList playlist) {
+                CompletableFuture.runAsync(()-> db.track_playList_JOIN_Dao().delete(track.getId(), playlist.getId()));
+            }
+        };
+        trackrepo = new TrackRepository(db);
+        albumrepo = new AlbumRepository(db);
+        playlistrepo = new PlaylistRepository(db);
+        genrerepo = new GenreRepository(db);
+        artistrepo = new ArtistRepository(db);
+        builder1 = new AlertDialog.Builder(this);
+        builder1.setCancelable(true);
+
+        builder1.setPositiveButton(
+                "Ok",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        map.put(FragmentType.Tracks, new TrackPresenter(trackrepo, trackListFragment, this, usecase));
+        map.put(FragmentType.Albums, new AlbumPresenter(albumrepo, albumListFragment, this));
+        map.put(FragmentType.Player, new PlayerPresenter(musicPlayerFragment, this));
+        map.put(FragmentType.Playlist, new PlaylistPresenter(playlistrepo, playlistFragment,this));
+        viewmap.put(FragmentType.Albums, albumListFragment);
+        viewmap.put(FragmentType.Tracks, trackListFragment);
+        viewmap.put(FragmentType.Player, musicPlayerFragment);
+        viewmap.put(FragmentType.Playlist, playlistFragment);
         changeFragment(trackListFragment);
     }
 
@@ -166,18 +241,7 @@ public class MainActivity extends AppCompatActivity implements TrackListFragment
 
         activeTabPosition = position;
         if (update) {
-            if(position == 0) {
-                Log.d("UUUU", "Clicked 1");
-                trackListFragment.setCurrentTrackContainer(null);//Null kuvaa tässä, että ei ole albumia ja ladataan kaikki raidat tietokannasta
-                changeFragment(trackListFragment);
-            }
-            else if(position == 1){
-                Log.d("UUUU", "Clicked 2");
-                changeFragment(albumListFragment);
-            }else if(position == 2){
-                Log.d("UUUU", "Clicked 3");
-                changeFragment(playlistFragment);
-            }
+            switchTo(FragmentType.getType(position));
         }
     }
 
@@ -199,7 +263,15 @@ public class MainActivity extends AppCompatActivity implements TrackListFragment
         if (id == R.id.action_settings) {
             return true;
         }else if(id == R.id.action_scan){
-            new ScanAsyncTask().execute();
+            //new ScanAsyncTask().execute();
+            new MusicFileScanner((ScanResult sr) -> {
+                SimpleListDialog dialog = SimpleListDialog.newInstance((ArrayList<BadFile>) sr.getBadFiles());
+                dialog.show(getSupportFragmentManager(), "SimpleNoticeDialogFragment");
+                for (Screen screen : map.values()) {
+                    if(screen.isActive())
+                        screen.refresh();
+                }
+            }, trackrepo, albumrepo, genrerepo, artistrepo).execute();
         }
 
         return super.onOptionsItemSelected(item);
@@ -262,28 +334,11 @@ public class MainActivity extends AppCompatActivity implements TrackListFragment
         }
     }
 
-    @Override
-    public void onFragmentInteraction(Track track) {
-        Log.d("UUUU", "Selected Track " + track.getName());
-        musicPlayerFragment.setTrack(track);
-        changeFragment(musicPlayerFragment);
-    }
-
     private void changeFragment(Fragment newFragement){
         FragmentTransaction tran = getSupportFragmentManager().beginTransaction();
-        //tran.
         tran.replace(R.id.FragmentContainer, newFragement, tag);
-        //tran.addToBackStack(null);
-        //tran.commit();
-        tran.commitAllowingStateLoss();
-    }
-
-    @Override
-    public void onAlbumFragmentInteractionListener(Album album) {
-        Log.d("UUUU", "Got album : " + album.getName());
-        trackListFragment.setCurrentTrackContainer(album);
-        //tabLayout.getTabAt(0).select();
-        changeFragment(trackListFragment);
+        tran.addToBackStack(null);
+        tran.commit();
     }
 
     @Override
@@ -293,146 +348,21 @@ public class MainActivity extends AppCompatActivity implements TrackListFragment
     }
 
     @Override
-    public void onPlaylistFragmentInteractionListener(PlayList playList) {
-        trackListFragment.setCurrentTrackContainer(playList);
-        changeFragment(trackListFragment);
+    public void switchTo(FragmentType type) {
+        activateFragmentTab(viewmap.get(type));
+        changeFragment(viewmap.get(type));
     }
 
-    //https://stackoverflow.com/questions/21590189/dry-a-case-with-asynctasks
-    private class ScanAsyncTask extends AsyncTask< Void, Void, String>
-    {
-        @Override
-        protected String doInBackground(Void ... voids) {
-            List<File> musicFiles = songsManager.getPlayList();
-            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-            for(File file : musicFiles){
-                mmr.setDataSource(file.getAbsolutePath());
-                //Log.d("UUUU", "Inserting track " + t.getName() + " to database");
-                String buf = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE);//METADATA_KEY_ALBUMARTIST
-                //Genre
-                Genre genre = db.genreDao().findByName(buf);
-                if(genre == null){
-                    Log.d("UUUU", "Inserting new Genre " + buf);
-                    genre = new Genre(buf);
-                    genre.setId(db.genreDao().insert(genre));
-                }
-                //Artist
-                buf = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST);
-                Artist artist = db.artistDao().findByName(buf);
-                if(artist == null){
-                    Log.d("UUUU", "Inserting new Artist " + buf);
-                    artist = new Artist(buf);
-                    artist.setId(db.artistDao().insert(artist));
-                }
-                //Album
-                buf = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
-                Album album = db.albumDao().findByName(buf);
-                if(album == null){
-                    Log.d("UUUU", "Inserting new Album " + buf);
-                    album = new Album(buf, "lolDatewhocares", 1, artist.getId());//String name, String Date, int nmr_of_tracks, long artistId
-                    album.setId(db.albumDao().insert(album));
-                }else{
-                    album.setNmr_of_tracks(album.getNmr_of_tracks()+1);
-                    db.albumDao().updateAlbums(album);
-                }
-                //Track
-                buf = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-                Track track = db.trackDao().findByName(buf);//Palauttaa NULL jos ei ole tietokannassa
-                if(track == null){
-                    Log.d("UUUU", "Inserting Track " + buf);
-                    db.trackDao().insert(new Track(buf, file.getAbsolutePath(),Math.round(Long.parseLong(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION))/1000) ,album.getId()));
-                }else{
-                    Log.d("UUUU", "EI OLE NULL " + track.getName());
-                }
-                //Log.d("UUUU", "Pituus " + Math.round(Long.parseLong(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION))/1000));
-            }
-            return "Done";
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... voids) {
-            super.onProgressUpdate();
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        // This runs in UI when background thread finishes
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-
-            // Do things like hide the progress bar or change a TextView
-        }
-    }
-    //https://stackoverflow.com/questions/25647881/android-asynctask-example-and-explanation
-    //https://stackoverflow.com/questions/20455644/object-cannot-be-cast-to-void-in-asynctask
-    /*
-    Tämä AsyncLuokka hakee tietokannasta dataa AppDatabase-oliota käyttämällä
-     */
-    public static class LoadAsyncTask extends AsyncTask<Void, Void, List<Object>>
-    {
-        private Function<Void, List<Object>> function;
-        private AsyncTaskListener listener;
-
-        public LoadAsyncTask(Function<Void, List<Object>> f, AsyncTaskListener listener){
-            function = f;
-            this.listener = listener;
-        }
-
-        @Override
-        protected List<Object> doInBackground(Void... voids) {
-            return function.apply(null);
-        }
-
-        @Override
-        protected void onPostExecute(List<Object> result) {
-            function = null;
-            listener.onTaskCompleted(result);
-        }
+    @Override
+    public void switchTo(FragmentType type, Consumer<Screen> c) {
+        c.accept(map.get(type));
+        activateFragmentTab(viewmap.get(type));
+        changeFragment(viewmap.get(type));
     }
 
-    public static class SaveAsyncTask extends AsyncTask<Void, Void, Object>
-    {
-        private Function<Void, Object> function;
-        private AsyncTaskListener listener;
-
-        public SaveAsyncTask(Function<Void, Object> f, AsyncTaskListener listener){
-            function = f;
-            this.listener = listener;
-        }
-
-        @Override
-        protected Object doInBackground(Void... voids) {
-            return function.apply(null);
-        }
-
-        @Override
-        protected void onPostExecute(Object result) {
-            function = null;
-            listener.onTaskCompleted(result);
-        }
-    }
-
-    public static class AsyncTaskNoReturnValue extends AsyncTask<Void, Void, Void>
-    {
-        private Function<Void, Void> function;
-
-        public AsyncTaskNoReturnValue(Function<Void, Void> f){
-            function = f;
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            return function.apply(null);
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            function = null;
-        }
+    @Override
+    public void uiUpdate(Runnable run) {
+        runOnUiThread(run);
     }
 
 }

@@ -3,14 +3,13 @@ package com.example.julius.mp3_soitin;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ListFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.example.julius.mp3_soitin.entities.Track;
+import com.example.julius.mp3_soitin.data.entities.Track;
 
 import java.util.List;
 
@@ -21,6 +20,8 @@ import java.util.List;
 public class CustomListAdapter extends ArrayAdapter<Track> {
 
     private ListFragment callback;
+
+    private int size = 0;
 
 
     public CustomListAdapter(Context context, int resource, List<Track> items, ListFragment listener) {
@@ -42,6 +43,8 @@ public class CustomListAdapter extends ArrayAdapter<Track> {
             //Tämä on tärkeä sillä mahdollistaa contextmenun luomisen pitkästä listan elementin painalluksesta
             v.setLongClickable(true);
         }
+        //if(getCount()<=position)
+           // return v;
         Track track = getItem(position);
         if (track != null) {
             TextView tt1 = v.findViewById(R.id.id);

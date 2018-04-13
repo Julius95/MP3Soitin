@@ -5,20 +5,20 @@ import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 
-import com.example.julius.mp3_soitin.entities.Album;
-import com.example.julius.mp3_soitin.entities.AlbumDao;
-import com.example.julius.mp3_soitin.entities.Artist;
-import com.example.julius.mp3_soitin.entities.ArtistDao;
-import com.example.julius.mp3_soitin.entities.Genre;
-import com.example.julius.mp3_soitin.entities.GenreDao;
-import com.example.julius.mp3_soitin.entities.PlayList;
-import com.example.julius.mp3_soitin.entities.PlayListDao;
-import com.example.julius.mp3_soitin.entities.Track;
-import com.example.julius.mp3_soitin.entities.TrackDao;
-import com.example.julius.mp3_soitin.entities.TrackPlaylistJoin;
-import com.example.julius.mp3_soitin.entities.TrackPlaylistJoinDao;
-import com.example.julius.mp3_soitin.entities.TracksGenreJoin;
-import com.example.julius.mp3_soitin.entities.TracksGenreJoinDao;
+import com.example.julius.mp3_soitin.data.entities.Album;
+import com.example.julius.mp3_soitin.data.entities.AlbumDao;
+import com.example.julius.mp3_soitin.data.entities.Artist;
+import com.example.julius.mp3_soitin.data.entities.ArtistDao;
+import com.example.julius.mp3_soitin.data.entities.Genre;
+import com.example.julius.mp3_soitin.data.entities.GenreDao;
+import com.example.julius.mp3_soitin.data.entities.PlayList;
+import com.example.julius.mp3_soitin.data.entities.PlayListDao;
+import com.example.julius.mp3_soitin.data.entities.Track;
+import com.example.julius.mp3_soitin.data.entities.TrackDao;
+import com.example.julius.mp3_soitin.data.entities.TrackPlaylistJoin;
+import com.example.julius.mp3_soitin.data.entities.TrackPlaylistJoinDao;
+import com.example.julius.mp3_soitin.data.entities.TracksGenreJoin;
+import com.example.julius.mp3_soitin.data.entities.TracksGenreJoinDao;
 
 /**
  * Created by Julius on 1.12.2017.
