@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class PlayerFragment extends Fragment implements PlayerContract.View<PlayerContract.Presenter>{
+public class PlayerFragment extends Fragment implements PlayerContract.View{
 
     private Button b1, pauseB, playB,b4;
     private ImageView iv;
@@ -81,16 +81,16 @@ public class PlayerFragment extends Fragment implements PlayerContract.View<Play
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_main, container, false);
 
-        b1 = (Button) v.findViewById(R.id.forward_button);
-        pauseB = (Button) v.findViewById(R.id.button_pause);
-        playB = (Button)v.findViewById(R.id.play_button);
-        b4 = (Button)v.findViewById(R.id.backwards_button);
-        iv = (ImageView)v.findViewById(R.id.imageView);
+        b1 = v.findViewById(R.id.forward_button);
+        pauseB = v.findViewById(R.id.button_pause);
+        playB = v.findViewById(R.id.play_button);
+        b4 = v.findViewById(R.id.backwards_button);
+        iv = v.findViewById(R.id.imageView);
 
-        tekstiNykyinenKohta = (TextView)v.findViewById(R.id.textCurrentPosition);
-        tekstiKokoAika = (TextView)v.findViewById(R.id.textKokoAika);
-        tx3 = (TextView)v.findViewById(R.id.textView4);
-        seekbar = (SeekBar)v.findViewById(R.id.seekBar);
+        tekstiNykyinenKohta = v.findViewById(R.id.textCurrentPosition);
+        tekstiKokoAika = v.findViewById(R.id.textKokoAika);
+        tx3 = v.findViewById(R.id.textView4);
+        seekbar = v.findViewById(R.id.seekBar);
         title = v.findViewById(R.id.title);
         seekbar.setClickable(true);
         Log.d("UUUU", " listeners------------------------------- " + seekbar.hasOnClickListeners());
@@ -148,6 +148,11 @@ public class PlayerFragment extends Fragment implements PlayerContract.View<Play
 
         b4.setOnClickListener((View view) -> presenter.previousSong());
         return v;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
     }
 
     @Override

@@ -29,6 +29,7 @@ public class TrackRepository implements Repository<Track> {
 
     @Override
     public void getAll(Consumer<List<Track>> callback) {
+        System.out.println("lol2 is db null? " + (db==null));
         CompletableFuture.supplyAsync(()-> db.trackDao().getAll()).thenAccept(callback);
     }
 
@@ -50,6 +51,11 @@ public class TrackRepository implements Repository<Track> {
     @Override
     public int delete(Track track) {
         return db.trackDao().delete(track);
+    }
+
+    @Override
+    public void delete(Track track, Consumer<Integer> callback) {
+
     }
 
     @Override

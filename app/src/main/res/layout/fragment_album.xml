@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.julius.mp3_soitin.views.playlist.PlayListFragment"
-    android:id="@+id/playListRoot">
+    tools:context="com.example.julius.mp3_soitin.views.track.TrackListFragment"
+    android:id="@+id/albumRootView">
 
     <LinearLayout
         android:id="@+id/header"
@@ -13,20 +14,43 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="6dp"
         android:layout_marginTop="6dp"
-        android:orientation="vertical"
         android:padding="10dp"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <Button
+        <TextView
+            android:id="@+id/albumitText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="@android:color/holo_green_light"
-            android:id="@+id/addPlayList"
-            android:text="@string/addplaylist"
-            android:textStyle="bold" />
+            android:baselineAligned="false"
+            android:text="@string/albumit"
+            android:textAllCaps="true"
+            android:textSize="18sp"
+            android:textStyle="bold|italic" />
+
+        <ImageView
+            android:id="@+id/imageView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/ic_album_black_24dp" />
+
+        <TextView
+            android:id="@+id/count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="#ofAlbums" />
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Button"
+            android:visibility="gone" />
 
     </LinearLayout>
 
@@ -58,5 +82,4 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Caption"
             android:textSize="14sp" />
     </LinearLayout>
-
 </android.support.constraint.ConstraintLayout>

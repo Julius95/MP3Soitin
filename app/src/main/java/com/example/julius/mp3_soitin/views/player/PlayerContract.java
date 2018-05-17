@@ -10,8 +10,8 @@ import java.util.List;
  */
 
 public interface PlayerContract {
-    interface View<P>{
-        void setPresenter(P presenter);
+    interface View{
+        void setPresenter(Presenter presenter);
         void setCurrentTimeText(double currentTime);
         void setEndTimeText(double endTime);
         void setCurrentTimeSeekBar(double currentTime);
@@ -24,7 +24,7 @@ public interface PlayerContract {
         //void updateView(double currentTime);
     }
 
-    interface Presenter extends BasePresenter {
+    interface Presenter extends BasePresenter<PlayerPlayList> {
         /**
          * Tells the presenter to load the given track
          * @param track

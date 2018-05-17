@@ -12,7 +12,9 @@ import java.util.function.Function;
  */
 
 public interface Repository<E> {
+
     void getAll(Consumer<List<E>> callback);
+
     void get(int id, Consumer<E> callback);
 
     /**
@@ -33,6 +35,8 @@ public interface Repository<E> {
      * @return Number of deleted rows
      */
     int delete(E e);
+
+    void delete(E e, Consumer<Integer> callback);
 
     /**
      * Asynchronous delete method

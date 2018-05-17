@@ -46,6 +46,11 @@ public class GenreRepository implements Repository<Genre> {
     }
 
     @Override
+    public void delete(Genre genre, Consumer<Integer> callback) {
+
+    }
+
+    @Override
     public void deleteAsync(Genre genre) {
 
     }

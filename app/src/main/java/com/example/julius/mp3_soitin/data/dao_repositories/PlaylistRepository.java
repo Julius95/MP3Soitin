@@ -48,6 +48,11 @@ public class PlaylistRepository implements Repository<PlayList> {
     }
 
     @Override
+    public void delete(PlayList playList, Consumer<Integer> callback) {
+        CompletableFuture.supplyAsync(() -> db.playListDao().delete(playList)).thenAccept(callback);
+    }
+
+    @Override
     public void deleteAsync(PlayList playList) {
         CompletableFuture.runAsync(() -> db.playListDao().delete(playList));
     }

@@ -10,14 +10,15 @@ import android.os.Parcelable;
 public class BadFile implements Parcelable {
     private String trackName, albumName, artistName, genreName, path;
 
-    public BadFile(String trackName, String albumName, String artistName, String genreName) {
+    BadFile(String trackName, String albumName, String artistName, String genreName, String path) {
         this.trackName = trackName;
         this.albumName = albumName;
         this.artistName = artistName;
         this.genreName = genreName;
+        this.path = path;
     }
 
-    protected BadFile(Parcel in) {
+    private BadFile(Parcel in) {
         trackName = in.readString();
         albumName = in.readString();
         artistName = in.readString();
@@ -69,5 +70,10 @@ public class BadFile implements Parcelable {
         parcel.writeString(this.artistName);
         parcel.writeString(this.genreName);
         parcel.writeString(this.path);
+    }
+
+    @Override
+    public String toString(){
+        return trackName;
     }
 }

@@ -3,22 +3,31 @@ package com.example.julius.mp3_soitin;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -37,6 +46,7 @@ import com.example.julius.mp3_soitin.data.entities.TrackPlaylistJoin;
 import com.example.julius.mp3_soitin.filescanning.BadFile;
 import com.example.julius.mp3_soitin.filescanning.ScanResult;
 import com.example.julius.mp3_soitin.filescanning.MusicFileScanner;
+import com.example.julius.mp3_soitin.views.BasePresenter;
 import com.example.julius.mp3_soitin.views.album.AlbumListFragment;
 import com.example.julius.mp3_soitin.views.album.AlbumPresenter;
 import com.example.julius.mp3_soitin.views.dialogs.DialogTrackPlaylistUseCase;
@@ -49,11 +59,14 @@ import com.example.julius.mp3_soitin.views.playlist.PlaylistPresenter;
 import com.example.julius.mp3_soitin.views.track.TrackListFragment;
 import com.example.julius.mp3_soitin.views.track.TrackPresenter;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
+
+import javax.inject.Inject;
 
 import static android.support.design.widget.TabLayout.MODE_SCROLLABLE;
 
@@ -86,10 +99,14 @@ public class MainActivity extends AppCompatActivity implements FragmentSwitcher 
     private int activeTabPosition = 0;
     public final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1112;
 
-    private HashMap<FragmentType, Screen> map = new HashMap<>();
+    private HashMap<FragmentType, BasePresenter> map = new HashMap<>();
     private HashMap<FragmentType, Fragment> viewmap = new HashMap<>();
 
     private AlertDialog.Builder builder1;
+
+    private ViewPager mPager;
+
+    private PagerAdapter mPagerAdapter;
 
     private void activateFragmentTab(Fragment f){
         TabLayout.Tab tab;
@@ -110,13 +127,47 @@ public class MainActivity extends AppCompatActivity implements FragmentSwitcher 
             tab.select();
     }
 
+    /**
+     * A simple pager adapter that represents 5 ScreenSlidePageFragment objects, in
+     * sequence.
+     */
+    private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
+        ScreenSlidePagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            Log.d("AAA", "POSITION " + position + " IS NULL " + (viewmap.get(FragmentType.Tracks) == null));
+            switch(position){
+                case 0: return viewmap.get(FragmentType.Tracks);
+                case 1: return viewmap.get(FragmentType.Albums);
+                case 2: return viewmap.get(FragmentType.Playlist);
+                case 3: return viewmap.get(FragmentType.Player);
+                default: return viewmap.get(FragmentType.Tracks);
+            }
+        }
+
+        @Override
+        public int getCount() {
+            return viewmap.size();
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+
         trackListFragment = TrackListFragment.newInstance(null);
         albumListFragment = AlbumListFragment.newInstance(null);
         playlistFragment = PlayListFragment.newInstance(null,null);
         musicPlayerFragment = new PlayerFragment();
-        db = AppDatabase.getInstance(getApplicationContext());
+        db = DaggerMainActivityComponent
+        .builder()
+        .appDatabaseModule(new AppDatabaseModule(getApplicationContext()))
+        .build()
+        .inject();
+        //db = AppDatabase.getInstance(getApplicationContext());
         getSupportFragmentManager().addOnBackStackChangedListener(() -> {
             Fragment currentBackStackFragment = getSupportFragmentManager().findFragmentByTag(tag);
             if(currentBackStackFragment == null)
@@ -157,6 +208,10 @@ public class MainActivity extends AppCompatActivity implements FragmentSwitcher 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        // Instantiate a ViewPager and a PagerAdapter.
+        mPager = findViewById(R.id.pager);
+        mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
+        mPager.setAdapter(mPagerAdapter);
 
         tabLayout = findViewById(R.id.tabs);
 
@@ -217,11 +272,7 @@ public class MainActivity extends AppCompatActivity implements FragmentSwitcher 
 
         builder1.setPositiveButton(
                 "Ok",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-                    }
-                });
+                (dialog, id) -> dialog.cancel());
         map.put(FragmentType.Tracks, new TrackPresenter(trackrepo, trackListFragment, this, usecase));
         map.put(FragmentType.Albums, new AlbumPresenter(albumrepo, albumListFragment, this));
         map.put(FragmentType.Player, new PlayerPresenter(musicPlayerFragment, this));
@@ -230,7 +281,25 @@ public class MainActivity extends AppCompatActivity implements FragmentSwitcher 
         viewmap.put(FragmentType.Tracks, trackListFragment);
         viewmap.put(FragmentType.Player, musicPlayerFragment);
         viewmap.put(FragmentType.Playlist, playlistFragment);
-        changeFragment(trackListFragment);
+        mPagerAdapter.notifyDataSetChanged();
+        mPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout){
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                map.get(FragmentType.getType(position)).refresh();
+            }
+        });
+        tabLayout.setOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mPager) {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                mPager.setCurrentItem(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {}
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {}
+        });
     }
 
     //https://stackoverflow.com/questions/37335850/select-a-tab-without-invoking-ontabselectedlistener
@@ -265,9 +334,49 @@ public class MainActivity extends AppCompatActivity implements FragmentSwitcher 
         }else if(id == R.id.action_scan){
             //new ScanAsyncTask().execute();
             new MusicFileScanner((ScanResult sr) -> {
-                SimpleListDialog dialog = SimpleListDialog.newInstance((ArrayList<BadFile>) sr.getBadFiles());
+                Serializable callback = (Consumer<List<BadFile>> & Serializable)(List<BadFile> files) -> {
+                    MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+                    for(BadFile bf : files) {
+                        mmr.setDataSource(bf.getPath());
+                        Genre genre = genrerepo.findByName(bf.getGenreName());
+                        if (genre == null) {
+                            Log.d("UUUU", "Inserting new Genre " + "Default");
+                            genre = new Genre("Default");
+                            genre.setId(genrerepo.add(genre));
+                        }
+                        Artist artist = artistrepo.findByName(bf.getArtistName());
+                        if (artist == null) {
+                            Log.d("UUUU", "Inserting new Artist Default");
+                            artist = new Artist("Default");
+                            artist.setId(artistrepo.add(artist));
+                        }
+                        //Album
+                        Album album = albumrepo.findByName(bf.getAlbumName());
+                        if (album == null) {
+                            if(bf.getAlbumName()==null)
+                                album = new Album("Default", "lolDatewhocares", 1, artist.getId());
+                            else
+                                album = new Album(bf.getAlbumName(), "lolDatewhocares", 1, artist.getId());
+                            Log.d("UUUU", "Inserting new Album Default");
+                            album.setId(albumrepo.add(album));
+                        } else {
+                            album.setNmr_of_tracks(album.getNmr_of_tracks() + 1);
+                            albumrepo.update(album);
+                        }
+                        //Track
+                        Track track = trackrepo.findByName(bf.getTrackName());//Palauttaa NULL jos ei ole tietokannassa
+                        if (track == null) {
+                            Log.d("UUUU", "Inserting Track ");
+                            trackrepo.add(new Track(bf.getTrackName(), bf.getPath(), Math.round(Long.parseLong(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)) / 1000), album.getId()));
+                        } else {
+                            //TODO jos löytyy jo valmiiksi raita niin mitäs sitten?
+                            Log.d("UUUU", "EI OLE NULL " + track.getName());
+                        }
+                    }
+                };
+                SimpleListDialog dialog = SimpleListDialog.newInstance((ArrayList<BadFile>) sr.getBadFiles(), callback);
                 dialog.show(getSupportFragmentManager(), "SimpleNoticeDialogFragment");
-                for (Screen screen : map.values()) {
+                for (BasePresenter screen : map.values()) {
                     if(screen.isActive())
                         screen.refresh();
                 }
@@ -344,20 +453,20 @@ public class MainActivity extends AppCompatActivity implements FragmentSwitcher 
     @Override
     public void onBackPressed() {
         backButtonPressed = true;
-        super.onBackPressed();
+        if(map.get(FragmentType.getType(mPager.getCurrentItem())).onBackPressed())
+            super.onBackPressed();
     }
 
     @Override
     public void switchTo(FragmentType type) {
-        activateFragmentTab(viewmap.get(type));
-        changeFragment(viewmap.get(type));
+        //activateFragmentTab(viewmap.get(type));
+        //changeFragment(viewmap.get(type));
     }
 
     @Override
-    public void switchTo(FragmentType type, Consumer<Screen> c) {
+    public void switchTo(FragmentType type, Consumer<BasePresenter> c) {
         c.accept(map.get(type));
-        activateFragmentTab(viewmap.get(type));
-        changeFragment(viewmap.get(type));
+        mPager.setCurrentItem(FragmentType.toInt(type));
     }
 
     @Override

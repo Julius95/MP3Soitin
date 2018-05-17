@@ -4,6 +4,8 @@ import com.example.julius.mp3_soitin.FragmentSwitcher;
 import com.example.julius.mp3_soitin.FragmentType;
 import com.example.julius.mp3_soitin.data.Repository;
 import com.example.julius.mp3_soitin.data.entities.PlayList;
+import com.example.julius.mp3_soitin.views.BasePresenter;
+import com.example.julius.mp3_soitin.views.BaseView;
 
 import java.util.List;
 
@@ -11,7 +13,7 @@ import java.util.List;
  * Created by Julius on 18.3.2018.
  */
 
-public class PlaylistPresenter implements PlaylistContract.Presenter, FragmentSwitcher.Screen<PlayList> {
+public class PlaylistPresenter implements PlaylistContract.Presenter {
 
     private Repository<PlayList> dataSource;
 
@@ -41,14 +43,14 @@ public class PlaylistPresenter implements PlaylistContract.Presenter, FragmentSw
 
     @Override
     public void openPlaylist(PlayList pl) {
-        mainactivity.switchTo(FragmentType.Tracks, (FragmentSwitcher.Screen screen)->{
+        mainactivity.switchTo(FragmentType.Tracks, (BasePresenter screen)->{
             screen.setContentByHelperObject(pl);
         });
     }
 
     @Override
     public void deletePlaylist(PlayList playlist) {
-        dataSource.delete(playlist);
+        dataSource.deleteAsync(playlist);
     }
 
     @Override
@@ -80,5 +82,10 @@ public class PlaylistPresenter implements PlaylistContract.Presenter, FragmentSw
     @Override
     public boolean isActive() {
         return active;
+    }
+
+    @Override
+    public boolean onBackPressed() {
+        return true;
     }
 }

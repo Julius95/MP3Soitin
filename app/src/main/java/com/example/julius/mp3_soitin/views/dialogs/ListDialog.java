@@ -2,10 +2,10 @@ package com.example.julius.mp3_soitin.views.dialogs;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.widget.ArrayAdapter;
 
@@ -23,7 +23,7 @@ import java.util.function.Consumer;
  * Custom listdialog used to show tracks
  */
 
-public class ListDialog extends DialogFragment{
+public class ListDialog extends DialogFragment {
     private List<PlayList> lista = new ArrayList<>();
     private ArrayAdapter<PlayList> arrayAdapter;
 

@@ -49,6 +49,11 @@ public class AlbumRepository implements Repository<Album> {
     }
 
     @Override
+    public void delete(Album album, Consumer<Integer> callback) {
+
+    }
+
+    @Override
     public void deleteAsync(Album album) {
 
     }

@@ -1,5 +1,8 @@
 package com.example.julius.mp3_soitin;
 
+import com.example.julius.mp3_soitin.views.BasePresenter;
+import com.example.julius.mp3_soitin.views.BaseView;
+
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -10,13 +13,13 @@ import java.util.function.Supplier;
 
 public interface FragmentSwitcher {
 
-    interface Screen<E>{
+    /*interface Screen<E>{
         void setContentByHelperObject(E e);
         void setContentByID(int id);
         void refresh();
         boolean isActive();
-    }
+    }*/
     void switchTo(FragmentType type);
-    void switchTo(FragmentType type, Consumer<Screen> c);
+    void switchTo(FragmentType type, Consumer<BasePresenter> c);
     void uiUpdate(Runnable run);
 }

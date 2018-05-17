@@ -46,6 +46,11 @@ public class ArtistRepository implements Repository<Artist> {
     }
 
     @Override
+    public void delete(Artist artist, Consumer<Integer> callback) {
+
+    }
+
+    @Override
     public void deleteAsync(Artist artist) {
 
     }

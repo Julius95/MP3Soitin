@@ -8,6 +8,8 @@ import com.example.julius.mp3_soitin.data.entities.Album;
 import com.example.julius.mp3_soitin.data.entities.PlayList;
 import com.example.julius.mp3_soitin.data.entities.Track;
 import com.example.julius.mp3_soitin.data.entities.TrackContainer;
+import com.example.julius.mp3_soitin.views.BasePresenter;
+import com.example.julius.mp3_soitin.views.BaseView;
 import com.example.julius.mp3_soitin.views.dialogs.DialogTrackPlaylistUseCase;
 import com.example.julius.mp3_soitin.views.player.PlayerPlayList;
 
@@ -20,11 +22,11 @@ import java.util.function.Supplier;
  * Created by Julius on 19.2.2018.
  */
 
-public class TrackPresenter implements TrackContract.Presenter, FragmentSwitcher.Screen<TrackContainer>{
+public class TrackPresenter implements TrackContract.Presenter{
 
     private Repository<Track> dataSource;
 
-    private TrackContract.View<TrackContract.Presenter> trackView;
+    private TrackContract.View trackView;
 
     private FragmentSwitcher mainactivity;
 
@@ -34,9 +36,9 @@ public class TrackPresenter implements TrackContract.Presenter, FragmentSwitcher
 
     private DialogTrackPlaylistUseCase usecase;
 
-    private boolean active = false;
+    private boolean active;
 
-    public TrackPresenter(Repository<Track> dataSource, TrackContract.View<TrackContract.Presenter> trackView, FragmentSwitcher mainactivity, DialogTrackPlaylistUseCase usecase) {
+    public TrackPresenter(Repository<Track> dataSource, TrackContract.View trackView, FragmentSwitcher mainactivity, DialogTrackPlaylistUseCase usecase) {
         this.dataSource = dataSource;
         this.trackView = trackView;
         trackView.setPresenter(this);
@@ -47,6 +49,7 @@ public class TrackPresenter implements TrackContract.Presenter, FragmentSwitcher
     @Override
     public void start() {
         active = true;
+        System.out.println("lol1");
         if(container!=null){
             trackView.setWindowName(container.getName());
             Consumer<List<Track>> callback = (List<Track> result) ->
@@ -56,7 +59,7 @@ public class TrackPresenter implements TrackContract.Presenter, FragmentSwitcher
                 tracks.addAll(result);
             });
             if(container.getType() == TrackListFragment.IdType.Album)
-                dataSource.conversion(Converter.getTracksFromTrackAlbum((Album) container), callback);
+                dataSource.conversion(Converter.getTracksFromTrackAlbum(container.getId()), callback);
             else
                 dataSource.conversion(Converter.getTracksFromPlaylist((PlayList) container), callback);
         }else{
@@ -79,7 +82,7 @@ public class TrackPresenter implements TrackContract.Presenter, FragmentSwitcher
 
     @Override
     public void openTrack(int index) {
-        mainactivity.switchTo(FragmentType.Player, (FragmentSwitcher.Screen s)->{
+        mainactivity.switchTo(FragmentType.Player, (BasePresenter s)->{
             PlayerPlayList pl = new PlayerPlayList("Tracks", new ArrayList<>(tracks));
             pl.setIndex(index);
             s.setContentByHelperObject(pl);
@@ -90,6 +93,28 @@ public class TrackPresenter implements TrackContract.Presenter, FragmentSwitcher
     public void longPressedTrack(int index, int mode) {
         Track track = tracks.get(index);
         trackView.showDialog(usecase, track, mode);
+    }
+
+    @Override
+    public void setTracks(List<Track> persistedTracks) {
+        trackView.showTracks(persistedTracks);
+        tracks.clear();
+        tracks.addAll(persistedTracks);
+    }
+
+    @Override
+    public void setContainer(TrackContainer container) {
+        this.container = container;
+    }
+
+    @Override
+    public TrackContainer getContainer() {
+        return container;
+    }
+
+    @Override
+    public boolean shouldUsePersistedData() {
+        return container==null;
     }
 
     @Override
@@ -110,5 +135,15 @@ public class TrackPresenter implements TrackContract.Presenter, FragmentSwitcher
     @Override
     public boolean isActive() {
         return active;
+    }
+
+    @Override
+    public boolean onBackPressed() {
+        if(container!=null){
+            container = null;
+            start();
+            return false;
+        }
+        return true;
     }
 }

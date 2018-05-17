@@ -50,9 +50,9 @@ public class AlbumListFragment extends ListFragment implements AlbumContract.Vie
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_tracklist, container, false);
-        TextView textview = v.findViewById(R.id.raidatText);
-        textview.setText(R.string.albumit);
+        View v = inflater.inflate(R.layout.fragment_album, container, false);
+        //TextView textview = v.findViewById(R.id.raidatText);
+        //textview.setText(R.string.albumit);
         //if(getListAdapter()==null){
             arrayAdapter = new ArrayAdapter<>(
                     getContext(),
@@ -67,7 +67,8 @@ public class AlbumListFragment extends ListFragment implements AlbumContract.Vie
     public void onResume() {
         Log.d("AAA", "ALBUM ONRESUME()");
         super.onResume();
-        presenter.start();
+        if(presenter!=null)
+            presenter.start();
     }
 
     @Override

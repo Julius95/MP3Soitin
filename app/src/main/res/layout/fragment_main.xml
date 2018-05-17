@@ -4,20 +4,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.julius.mp3_soitin.views.player.PlayerFragment">
+    tools:context="com.example.julius.mp3_soitin.views.player.PlayerFragment"
+    android:id="@+id/playerRootView">
     <!--tools:showIn="@layout/activity_main"
     -->
 
     <TextView
         android:id="@+id/title"
-        android:layout_width="wrap_content"
-        android:layout_height="60dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginStart="13dp"
+        android:layout_marginBottom="14dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:text="Music Player"
         android:textSize="35dp"
-        app:layout_constraintStart_toStartOf="@+id/header"
+        app:layout_constraintBottom_toTopOf="@+id/header"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -29,7 +34,7 @@
         android:layout_marginTop="14dp"
         android:text="Tutorials point"
         android:textColor="#ff7aff24"
-        android:textSize="35dp"
+        android:textSize="35sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/title" />
@@ -44,14 +49,14 @@
         android:src="@mipmap/ic_launcher"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/header" />
+        app:layout_constraintTop_toBottomOf="@+id/header"
+        android:contentDescription="TODO" />
 
     <Button
         android:id="@+id/forward_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginEnd="16dp"
         android:text="@string/forward"
@@ -62,7 +67,6 @@
         android:id="@+id/button_pause"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/imageView"
         android:layout_alignParentBottom="true"
         android:layout_alignStart="@+id/imageView"
         android:layout_marginStart="1dp"
@@ -77,7 +81,6 @@
         android:layout_alignTop="@+id/button_pause"
         android:layout_marginStart="16dp"
         android:layout_toEndOf="@+id/button_pause"
-        android:layout_toRightOf="@+id/button_pause"
         android:text="@string/back"
         app:layout_constraintBaseline_toBaselineOf="@+id/button_pause"
         app:layout_constraintStart_toStartOf="parent" />
@@ -89,7 +92,6 @@
         android:layout_alignTop="@+id/play_button"
         android:layout_marginBottom="74dp"
         android:layout_toEndOf="@+id/play_button"
-        android:layout_toRightOf="@+id/play_button"
         android:text="@string/rewind"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/button_pause" />
@@ -100,8 +102,6 @@
         android:layout_height="24dp"
         android:layout_above="@+id/forward_button"
         android:layout_alignEnd="@+id/title"
-        android:layout_alignLeft="@+id/title"
-        android:layout_alignRight="@+id/title"
         android:layout_alignStart="@+id/title"
         android:layout_marginBottom="28dp"
         android:layout_marginEnd="8dp"

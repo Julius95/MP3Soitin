@@ -2,6 +2,8 @@ package com.example.julius.mp3_soitin.data.entities;
 
 import com.example.julius.mp3_soitin.views.track.TrackListFragment;
 
+import java.io.Serializable;
+
 /**
  * Created by Julius on 8.12.2017.
  * Kaikki DAO-luokat, joilla on yhteys raita-tauluun implementoivat tämän rajapinnan.
@@ -10,7 +12,7 @@ import com.example.julius.mp3_soitin.views.track.TrackListFragment;
 
 
 
-public interface TrackContainer {
+public interface TrackContainer extends Serializable{
 
     String getName();
     TrackListFragment.IdType getType();

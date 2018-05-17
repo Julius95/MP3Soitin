@@ -8,6 +8,7 @@ import com.example.julius.mp3_soitin.data.Repository;
 import com.example.julius.mp3_soitin.data.entities.Album;
 import com.example.julius.mp3_soitin.data.entities.ArtistWithAlbums;
 import com.example.julius.mp3_soitin.data.entities.TrackContainer;
+import com.example.julius.mp3_soitin.views.BasePresenter;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -16,7 +17,7 @@ import java.util.function.Supplier;
  * Created by Julius on 20.2.2018.
  */
 
-public class AlbumPresenter implements AlbumContract.Presenter, FragmentSwitcher.Screen<ArtistWithAlbums> {
+public class AlbumPresenter implements AlbumContract.Presenter {
 
     private Repository<Album> dataSource;
 
@@ -46,7 +47,7 @@ public class AlbumPresenter implements AlbumContract.Presenter, FragmentSwitcher
 
     @Override
     public void selectAlbum(Album album) {
-        mainactivity.switchTo(FragmentType.Tracks, (FragmentSwitcher.Screen s) -> s.setContentByHelperObject(album));
+        mainactivity.switchTo(FragmentType.Tracks, (BasePresenter s) -> s.setContentByHelperObject(album));
     }
 
     @Override
@@ -67,5 +68,10 @@ public class AlbumPresenter implements AlbumContract.Presenter, FragmentSwitcher
     @Override
     public boolean isActive() {
         return active;
+    }
+
+    @Override
+    public boolean onBackPressed() {
+        return true;
     }
 }

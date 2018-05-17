@@ -17,11 +17,17 @@ public class Converter {
 
     private Converter(){}
 
+    /**
+     * Get tracks that belong to a playlist
+     * Playlist->List<Track>
+     * @param playlist
+     * @return
+     */
     public static Function<AppDatabase, List<Track>> getTracksFromPlaylist(PlayList playlist){
         return (AppDatabase db) -> db.track_playList_JOIN_Dao().getTracksFromPlayList(playlist.getId());
     }
 
-    public static Function<AppDatabase, List<Track>> getTracksFromTrackAlbum(Album album){
-        return (AppDatabase db) -> db.albumDao().loadAlbumWithTracks(album.getId()).tracks;
+    public static Function<AppDatabase, List<Track>> getTracksFromTrackAlbum(long id){
+        return (AppDatabase db) -> db.albumDao().loadAlbumWithTracks(id).tracks;
     }
 }

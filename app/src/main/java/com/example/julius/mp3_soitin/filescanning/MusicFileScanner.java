@@ -78,7 +78,7 @@ public class MusicFileScanner extends AsyncTask< Void, Void, ScanResult> {
                 bufAlbum == null || bufAlbum.length()<1 ||
                 bufTrack == null || bufTrack.length()<1 ||
                 bufGenre == null || bufGenre.length()<1){
-                badfiles.add(new BadFile(bufTrack, bufAlbum, bufArtist, bufGenre));
+                badfiles.add(new BadFile(bufTrack, bufAlbum, bufArtist, bufGenre, file.getAbsolutePath()));
                 badReads++;
                 continue;
             }

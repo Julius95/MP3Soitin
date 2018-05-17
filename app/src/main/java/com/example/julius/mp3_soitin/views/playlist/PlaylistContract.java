@@ -18,7 +18,7 @@ public interface PlaylistContract {
         void addPlaylist(PlayList pl);
     }
 
-    interface Presenter extends BasePresenter {
+    interface Presenter extends BasePresenter<PlayList> {
         void openPlaylist(PlayList pl);
         void deletePlaylist(PlayList playlist);
         void savePlaylist(String newPlaylistName);

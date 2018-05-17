@@ -14,9 +14,9 @@ import java.util.function.Supplier;
  * Created by Julius on 20.2.2018.
  */
 
-public class PlayerPresenter implements PlayerContract.Presenter, FragmentSwitcher.Screen<PlayerPlayList> {
+public class PlayerPresenter implements PlayerContract.Presenter {
 
-    private PlayerContract.View<PlayerContract.Presenter> playerView;
+    private PlayerContract.View playerView;
 
     private FragmentSwitcher mainactivity;
 
@@ -34,16 +34,18 @@ public class PlayerPresenter implements PlayerContract.Presenter, FragmentSwitch
 
     private Handler myHandler;
 
-    private boolean update;
+    private volatile boolean update;
 
     private boolean active = false;
 
-    public PlayerPresenter(PlayerContract.View<PlayerContract.Presenter> playerView, FragmentSwitcher mainactivity) {
+    private Runnable UpdateSongTime;
+
+    public PlayerPresenter(PlayerContract.View playerView, FragmentSwitcher mainactivity) {
         this.playerView = playerView;
         playerView.setPresenter(this);
         this.mainactivity = mainactivity;
         update = false;
-        setUpHandler();
+        //setUpHandler();
     }
 
     @Override
@@ -59,8 +61,12 @@ public class PlayerPresenter implements PlayerContract.Presenter, FragmentSwitch
         currentTime = mediaPlayer.getCurrentPosition();//Kun mediaplyer reset tämä on taas nolla
         update = true;
         refreshView();
-        if(myHandler!=null)
-            myHandler.postDelayed(UpdateSongTime,100);
+        if(UpdateSongTime == null) {
+            UpdateSongTime = newRunnable();
+            new Thread(UpdateSongTime).start();
+        }
+        //if(myHandler!=null)
+          //  myHandler.postDelayed(UpdateSongTime,100);
         if(isPlaying())
             playerView.setToPlayStatus();
         else
@@ -70,7 +76,8 @@ public class PlayerPresenter implements PlayerContract.Presenter, FragmentSwitch
     @Override
     public void stop() {
         update = active = false;
-        myHandler.removeCallbacks(UpdateSongTime);
+        UpdateSongTime = null;
+        //myHandler.removeCallbacks(UpdateSongTime);
     }
 
     @Override
@@ -89,12 +96,16 @@ public class PlayerPresenter implements PlayerContract.Presenter, FragmentSwitch
 
     @Override
     public void refresh() {
-        start();
     }
 
     @Override
     public boolean isActive() {
         return active;
+    }
+
+    @Override
+    public boolean onBackPressed() {
+        return true;
     }
 
     @Override
@@ -149,19 +160,18 @@ public class PlayerPresenter implements PlayerContract.Presenter, FragmentSwitch
         }
     }
 
-    private Runnable UpdateSongTime = new Runnable() {
-        public void run() {
-            //if(seekbar==null)
-                //return;
-            Log.d("UUUU", Thread.currentThread().getName());
-            if(update){
+    private Runnable newRunnable(){
+        return () ->{
+            while(update){
+                Log.d("UUUU", Thread.currentThread().getName());
                 currentTime = mediaPlayer.getCurrentPosition();
-                playerView.setCurrentTimeText(currentTime);
-                playerView.setCurrentTimeSeekBar(currentTime);
-                myHandler.postDelayed(this, 100);
+                mainactivity.uiUpdate(()->{
+                    playerView.setCurrentTimeText(currentTime);
+                    playerView.setCurrentTimeSeekBar(currentTime);
+                });
             }
-        }
-    };
+        };
+    }
 
     private void refreshView(){
         playerView.setCurrentTimeText(currentTime);
@@ -189,9 +199,10 @@ public class PlayerPresenter implements PlayerContract.Presenter, FragmentSwitch
 
     private void setUpHandler(){
         if(myHandler == null){
+            Log.d("UUUU", "SET UP HANDELER");
             myHandler = new Handler();
             //handlerCreated = true;
-            myHandler.postDelayed(UpdateSongTime,100);
+            //myHandler.postDelayed(UpdateSongTime,100);
         }
     }
 }

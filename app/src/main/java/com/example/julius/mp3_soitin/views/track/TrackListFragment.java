@@ -1,6 +1,7 @@
 package com.example.julius.mp3_soitin.views.track;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -25,9 +26,8 @@ import java.util.List;
 /**
  * https://stackoverflow.com/questions/8482606/when-a-fragment-is-replaced-and-put-in-the-back-stack-or-removed-does-it-stay
  */
-public class TrackListFragment extends ListFragment implements TrackContract.View<TrackContract.Presenter>{
+public class TrackListFragment extends ListFragment implements TrackContract.View{
 
-    private TrackContainer currentTrackContainer;
 
     private TrackContract.Presenter presenter;
 
@@ -39,14 +39,15 @@ public class TrackListFragment extends ListFragment implements TrackContract.Vie
 
     private String name = defaultName;
 
-    private final List<Track> tracks = new ArrayList<>();
+    private final ArrayList<Track> tracks = new ArrayList<>();
 
     public TrackListFragment() {}
 
 
     @Override
     public void onResume() {
-        presenter.start();
+        if(presenter!=null)
+            presenter.start();
         super.onResume();
         maintextview.setText(name);
     }
@@ -61,11 +62,13 @@ public class TrackListFragment extends ListFragment implements TrackContract.Vie
     @Override
     public void setWindowName(String newName) {
         name = newName;
+        maintextview.setText(name);
     }
 
     @Override
     public void resetWindowName() {
         name = defaultName;
+        maintextview.setText(name);
     }
 
     @Override
@@ -86,7 +89,7 @@ public class TrackListFragment extends ListFragment implements TrackContract.Vie
             case 1:
                 dialog = ListDialog.newInstance(usecase, track, true);
                 //dialog.setListener(this);
-                dialog.show(this.getActivity().getSupportFragmentManager(), "NoticeDialogFragment");
+                dialog.show(this.getActivity().getFragmentManager(), "NoticeDialogFragment");
                 break;
 
             //poistetaan kappaletta soittolistasta
@@ -94,7 +97,7 @@ public class TrackListFragment extends ListFragment implements TrackContract.Vie
             case 2:
                 dialog = ListDialog.newInstance(usecase, track, false);
                 //dialog.setListener(this);
-                dialog.show(this.getActivity().getSupportFragmentManager(), "NoticeDialogFragment");
+                dialog.show(this.getActivity().getFragmentManager(), "NoticeDialogFragment");
                 break;
         }
     }
@@ -121,16 +124,15 @@ public class TrackListFragment extends ListFragment implements TrackContract.Vie
 
         maintextview = v.findViewById(R.id.raidatText);
 
-        /*if(currentTrackContainer == null){
-            //new MainActivity.LoadAsyncTask(Track.getAllTracks(AppDatabase.getInstance(getContext())), this).execute();
-        }else{
-            String type;
-            if(currentTrackContainer.getType() == IdType.Album)
-                type = "Albumi : ";
-            else
-                type = "PlayList : ";
-            maintextview.setText(type + currentTrackContainer.getName());
-        }*/
+        Log.d("AAA", "TRACK ON CREATE VIEW");
+        if(savedInstanceState!=null){
+            Log.d("AAA", "TRACKLIST ON SAVEDINSTANCE");
+            if(presenter.shouldUsePersistedData()){
+                presenter.setContainer((TrackContainer) savedInstanceState.getSerializable("container"));
+                presenter.setTracks(savedInstanceState.getParcelableArrayList("tracks"));
+            }
+            savedInstanceState.clear();
+        }
         return v;
     }
 
@@ -142,8 +144,6 @@ public class TrackListFragment extends ListFragment implements TrackContract.Vie
 
     @Override
     public void onPause(){
-        //history.push(currentAlbum);
-        currentTrackContainer = null;
         super.onPause();
     }
 
@@ -159,12 +159,13 @@ public class TrackListFragment extends ListFragment implements TrackContract.Vie
     @Override
     public void onDestroyView(){
         super.onDestroyView();
-        presenter.stop();
+
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        presenter.stop();
     }
 
     @Override
@@ -182,6 +183,14 @@ public class TrackListFragment extends ListFragment implements TrackContract.Vie
         menu.add(Menu.NONE, 0, Menu.NONE, R.string.info);
         menu.add(Menu.NONE, 1, Menu.NONE, R.string.addtoplaylist);
         menu.add(Menu.NONE, 2, Menu.NONE, R.string.removefromplaylist);
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState){
+        super.onSaveInstanceState(outState);
+        Log.d("AAA", "TRACKLIST ON SAVINGSTATE");
+        outState.putParcelableArrayList("tracks", tracks);
+        outState.putSerializable("container", presenter.getContainer());
     }
 
     @Override
