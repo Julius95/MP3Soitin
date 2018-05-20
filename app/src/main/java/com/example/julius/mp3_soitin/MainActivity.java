@@ -10,6 +10,7 @@ import android.database.Cursor;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
@@ -68,6 +69,8 @@ import java.util.function.Consumer;
 
 import javax.inject.Inject;
 
+import dagger.android.AndroidInjection;
+
 import static android.support.design.widget.TabLayout.MODE_SCROLLABLE;
 
 //https://developer.android.com/training/permissions/requesting.html
@@ -76,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements FragmentSwitcher 
 
     private PlayerFragment musicPlayerFragment;
 
-    private AppDatabase db;
+    @Inject AppDatabase db;
 
     private TabLayout tabLayout;
 
@@ -86,11 +89,16 @@ public class MainActivity extends AppCompatActivity implements FragmentSwitcher 
 
     private PlayListFragment playlistFragment;
 
-    private Repository<Track> trackrepo;
-    private Repository<Album> albumrepo;
-    private Repository<PlayList> playlistrepo;
-    private Repository<Genre> genrerepo;
-    private Repository<Artist> artistrepo;
+    @Inject
+    Repository<Track> trackrepo;
+    @Inject
+    Repository<Album> albumrepo;
+    @Inject
+    Repository<PlayList> playlistrepo;
+    @Inject
+    Repository<Genre> genrerepo;
+    @Inject
+    Repository<Artist> artistrepo;
 
     private String tag = "visible_fragment";
 
@@ -157,16 +165,17 @@ public class MainActivity extends AppCompatActivity implements FragmentSwitcher 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        AndroidInjection.inject(this);
 
         trackListFragment = TrackListFragment.newInstance(null);
         albumListFragment = AlbumListFragment.newInstance(null);
         playlistFragment = PlayListFragment.newInstance(null,null);
         musicPlayerFragment = new PlayerFragment();
-        db = DaggerMainActivityComponent
+        /*DaggerMainActivityComponent
         .builder()
-        .appDatabaseModule(new AppDatabaseModule(getApplicationContext()))
+        .appDatabase(AppDatabase.getInstance(getBaseContext()))
         .build()
-        .inject();
+        .inject(this);*/
         //db = AppDatabase.getInstance(getApplicationContext());
         getSupportFragmentManager().addOnBackStackChangedListener(() -> {
             Fragment currentBackStackFragment = getSupportFragmentManager().findFragmentByTag(tag);
@@ -262,11 +271,11 @@ public class MainActivity extends AppCompatActivity implements FragmentSwitcher 
                 CompletableFuture.runAsync(()-> db.track_playList_JOIN_Dao().delete(track.getId(), playlist.getId()));
             }
         };
-        trackrepo = new TrackRepository(db);
+        /*trackrepo = new TrackRepository(db);
         albumrepo = new AlbumRepository(db);
         playlistrepo = new PlaylistRepository(db);
         genrerepo = new GenreRepository(db);
-        artistrepo = new ArtistRepository(db);
+        artistrepo = new ArtistRepository(db);*/
         builder1 = new AlertDialog.Builder(this);
         builder1.setCancelable(true);
 
@@ -461,6 +470,10 @@ public class MainActivity extends AppCompatActivity implements FragmentSwitcher 
     public void switchTo(FragmentType type) {
         //activateFragmentTab(viewmap.get(type));
         //changeFragment(viewmap.get(type));
+        //https://stackoverflow.com/questions/38722325/fragmentmanager-is-already-executing-transactions-when-is-it-safe-to-initialise/38722520?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+        //3rd answer
+        Handler uiHandler = new Handler();
+        uiHandler.post(() -> mPager.setCurrentItem(FragmentType.toInt(type)));
     }
 
     @Override

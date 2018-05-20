@@ -16,6 +16,8 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import javax.inject.Inject;
+
 /**
  * Created by Julius on 19.2.2018.
  */
@@ -23,6 +25,7 @@ import java.util.function.Function;
 public class TrackRepository implements Repository<Track> {
     private AppDatabase db;
 
+    @Inject
     public TrackRepository(AppDatabase db){
         this.db = db;
     }
